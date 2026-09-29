@@ -14,16 +14,210 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          booking_code: string
+          branch_id: string
+          created_at: string
+          customer_name: string
+          deposit_status: Database["public"]["Enums"]["deposit_status"]
+          id: string
+          package_id: string
+          people_count: number
+          slot_end: string
+          slot_start: string
+          status: Database["public"]["Enums"]["booking_status"]
+          theme_id: string
+          whatsapp: string
+        }
+        Insert: {
+          booking_code: string
+          branch_id: string
+          created_at?: string
+          customer_name: string
+          deposit_status?: Database["public"]["Enums"]["deposit_status"]
+          id?: string
+          package_id: string
+          people_count: number
+          slot_end: string
+          slot_start: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          theme_id: string
+          whatsapp: string
+        }
+        Update: {
+          booking_code?: string
+          branch_id?: string
+          created_at?: string
+          customer_name?: string
+          deposit_status?: Database["public"]["Enums"]["deposit_status"]
+          id?: string
+          package_id?: string
+          people_count?: number
+          slot_end?: string
+          slot_start?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          theme_id?: string
+          whatsapp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      branches: {
+        Row: {
+          address: string
+          close_time: string
+          id: string
+          name: string
+          open_time: string
+        }
+        Insert: {
+          address: string
+          close_time: string
+          id: string
+          name: string
+          open_time: string
+        }
+        Update: {
+          address?: string
+          close_time?: string
+          id?: string
+          name?: string
+          open_time?: string
+        }
+        Relationships: []
+      }
+      packages: {
+        Row: {
+          duration_minutes: number
+          id: string
+          max_people: number
+          name: string
+          price: number
+        }
+        Insert: {
+          duration_minutes: number
+          id: string
+          max_people: number
+          name: string
+          price: number
+        }
+        Update: {
+          duration_minutes?: number
+          id?: string
+          max_people?: number
+          name?: string
+          price?: number
+        }
+        Relationships: []
+      }
+      themes: {
+        Row: {
+          description: string
+          id: string
+          name: string
+        }
+        Insert: {
+          description: string
+          id: string
+          name: string
+        }
+        Update: {
+          description?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      waitlist: {
+        Row: {
+          branch_id: string
+          created_at: string
+          customer_name: string
+          id: string
+          slot_start: string
+          whatsapp: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          customer_name: string
+          id?: string
+          slot_start: string
+          whatsapp: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          customer_name?: string
+          id?: string
+          slot_start?: string
+          whatsapp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_booking: {
+        Args: {
+          _branch_id: string
+          _customer_name: string
+          _package_id: string
+          _people_count: number
+          _slot_start: string
+          _theme_id: string
+          _whatsapp: string
+        }
+        Returns: string
+      }
+      get_booked_slots: {
+        Args: { _branch_id: string; _from: string; _to: string }
+        Returns: {
+          slot_end: string
+          slot_start: string
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      booking_status:
+        | "pending"
+        | "confirmed"
+        | "cancelled"
+        | "no_show"
+        | "completed"
+      deposit_status: "unpaid" | "paid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +344,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      booking_status: [
+        "pending",
+        "confirmed",
+        "cancelled",
+        "no_show",
+        "completed",
+      ],
+      deposit_status: ["unpaid", "paid"],
+    },
   },
 } as const
