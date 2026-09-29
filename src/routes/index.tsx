@@ -246,10 +246,10 @@ function Backdrops() {
           {backdrops.map((b) => (
             <article
               key={b.name}
-              className="group overflow-hidden rounded-3xl border border-border bg-card shadow-pop-sm transition-transform duration-200 hover:-translate-y-1"
+              className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-pop-sm transition-transform duration-200 hover:-translate-y-1"
             >
               <div className={`${b.gradient} aspect-[4/5] w-full transition-transform duration-300 group-hover:scale-[1.03]`} />
-              <div className="p-5 sm:p-6">
+              <div className="flex-1 p-5 sm:p-6">
                 <h3 className="font-display text-lg font-bold sm:text-xl">{b.name}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{b.tagline}</p>
               </div>
