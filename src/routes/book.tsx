@@ -551,11 +551,12 @@ function BookPage() {
                     {selectedPkg ? rupiah(selectedPkg.price) : "—"}
                   </span>
                 </div>
+                {submitError && <p className="mt-3 text-sm font-semibold text-destructive">{submitError}</p>}
               </div>
             )}
 
             <div className="mt-8 hidden items-center justify-between gap-3 lg:flex">
-              <NavButtons step={step} back={back} next={next} confirm={confirm} />
+              <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} />
             </div>
           </section>
 
@@ -585,7 +586,7 @@ function BookPage() {
             </div>
           </div>
           <div className="flex shrink-0 gap-2">
-            <NavButtons step={step} back={back} next={next} confirm={confirm} compact />
+            <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} compact />
           </div>
         </div>
       </div>
@@ -622,12 +623,14 @@ function NavButtons({
   next,
   confirm,
   compact,
+  busy,
 }: {
   step: number;
   back: () => void;
   next: () => void;
   confirm: () => void;
   compact?: boolean | undefined;
+  busy?: boolean | undefined;
 }) {
   const last = step === STEPS.length - 1;
   return (
@@ -648,11 +651,12 @@ function NavButtons({
       <button
         type="button"
         onClick={last ? confirm : next}
+        disabled={busy}
         className={`shadow-pop-sm inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition-transform hover:-translate-y-0.5 ${
           last ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"
         }`}
       >
-        {last ? "Confirm booking" : "Next"}
+        {last ? (busy ? "Booking…" : "Confirm booking") : "Next"}
         {last ? <Check className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
       </button>
     </>
