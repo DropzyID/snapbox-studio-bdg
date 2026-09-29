@@ -135,10 +135,10 @@ function AdminPage() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
-            <button onClick={() => void load()} aria-label="Refresh" className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card">
+            <button onClick={() => void load()} aria-label="Refresh" className="grid h-11 w-11 place-items-center rounded-full border border-border bg-card">
               <RefreshCw className={loading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
             </button>
-            <button onClick={signOut} className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-card px-3 py-2 text-sm font-semibold">
+            <button onClick={signOut} className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-card px-3 py-2 text-sm font-semibold">
               <LogOut className="h-4 w-4" /> Sign out
             </button>
           </div>
@@ -264,10 +264,10 @@ function BranchTimeline({
               </div>
               {(b.status === "confirmed" || b.status === "pending") && (
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <button onClick={() => onStatus(b.id, "completed")} className="flex items-center justify-center gap-1.5 rounded-full bg-foreground px-3 py-2 text-xs font-bold text-background">
+                  <button onClick={() => onStatus(b.id, "completed")} className="flex items-center justify-center gap-1.5 min-h-11 rounded-full bg-foreground px-3 py-2 text-xs font-bold text-background">
                     <Check className="h-3.5 w-3.5" /> Completed
                   </button>
-                  <button onClick={() => onStatus(b.id, "no_show")} className="flex items-center justify-center gap-1.5 rounded-full border border-primary px-3 py-2 text-xs font-bold text-primary">
+                  <button onClick={() => onStatus(b.id, "no_show")} className="flex items-center justify-center gap-1.5 min-h-11 rounded-full border border-primary px-3 py-2 text-xs font-bold text-primary">
                     <UserX className="h-3.5 w-3.5" /> No-show
                   </button>
                 </div>
@@ -385,7 +385,7 @@ function BlockSlots() {
           </label>
         </div>
         <label className="flex items-center gap-2 text-sm font-semibold">
-          <input type="checkbox" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="h-4 w-4 accent-[var(--primary)]" />
+          <input type="checkbox" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="h-5 w-5 accent-[var(--primary)]" />
           Whole day
         </label>
         {!allDay && (

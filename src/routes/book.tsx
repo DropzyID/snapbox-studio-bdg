@@ -614,7 +614,7 @@ function BookPage() {
                       <div role="alert" className="rounded-2xl border-2 border-destructive bg-card p-4 text-sm">
                         <p className="font-semibold text-destructive">We couldn't load the available times.</p>
                         <p className="mt-1 text-muted-foreground">Check your connection and try again.</p>
-                        <button type="button" onClick={() => setSlotsVersion((v) => v + 1)} className="mt-3 rounded-full border-2 border-foreground px-4 py-1.5 text-sm font-bold">
+                        <button type="button" onClick={() => setSlotsVersion((v) => v + 1)} className="mt-3 min-h-11 rounded-full border-2 border-foreground px-4 py-1.5 text-sm font-bold">
                           Try again
                         </button>
                       </div>
@@ -642,7 +642,7 @@ function BookPage() {
                                   setTime(t);
                                   setErrors((e) => ({ ...e, time: undefined }));
                                 }}
-                                className={`rounded-xl border-2 py-2 text-sm font-bold transition-all ${
+                                className={`min-h-11 rounded-xl border-2 py-2 text-sm font-bold transition-all ${
                                   disabled
                                     ? "cursor-not-allowed border-dashed border-border bg-muted text-muted-foreground line-through"
                                     : active
@@ -656,7 +656,7 @@ function BookPage() {
                                 <button
                                   type="button"
                                   onClick={() => setWaitTime(t)}
-                                  className="rounded-full bg-accent px-1 py-0.5 text-[10px] font-bold leading-tight text-accent-foreground hover:bg-primary hover:text-primary-foreground"
+                                  className="min-h-11 rounded-xl bg-accent px-1 py-1 text-[11px] font-bold leading-tight text-accent-foreground hover:bg-primary hover:text-primary-foreground"
                                 >
                                   Join waitlist
                                 </button>
@@ -839,7 +839,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               Snapbox<span className="text-primary">.</span>
             </span>
           </Link>
-          <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+          <Link to="/" className="inline-flex min-h-11 items-center px-1 text-sm font-medium text-muted-foreground hover:text-foreground">
             ← Home
           </Link>
         </nav>

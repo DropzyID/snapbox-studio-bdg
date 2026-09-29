@@ -53,7 +53,7 @@ function WaitlistDemo() {
         <button
           type="button"
           onClick={load}
-          className="inline-flex items-center gap-1.5 rounded-full border-2 border-border px-3 py-1 text-sm font-bold hover:border-foreground"
+          className="inline-flex items-center gap-1.5 min-h-11 rounded-full border-2 border-border px-4 py-1 text-sm font-bold hover:border-foreground"
         >
           <RefreshCw className="h-3.5 w-3.5" /> Refresh
         </button>

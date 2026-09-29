@@ -107,7 +107,7 @@ function Navbar() {
           </div>
           <Link
             to="/book"
-            className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
+            className="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
           >
             Book
           </Link>
@@ -117,7 +117,7 @@ function Navbar() {
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
-          className="grid h-10 w-10 place-items-center rounded-xl border border-border bg-card text-foreground md:hidden"
+          className="grid h-11 w-11 place-items-center rounded-xl border border-border bg-card text-foreground md:hidden"
         >
           {menuOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
         </button>
@@ -480,7 +480,7 @@ function Footer() {
                   href={`https://wa.me/${STUDIO_WHATSAPP}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-background/20 px-3.5 py-2 text-xs font-bold opacity-80 transition-colors hover:border-primary/60 hover:text-primary hover:opacity-100"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-background/20 px-3.5 py-2 text-xs font-bold opacity-80 transition-colors hover:border-primary/60 hover:text-primary hover:opacity-100"
                 >
                   <MessageCircle className="h-3.5 w-3.5" aria-hidden />
                   Chat on WhatsApp
@@ -489,7 +489,7 @@ function Footer() {
                   href="https://instagram.com/snapbox.studio"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-background/20 px-3.5 py-2 text-xs font-bold opacity-80 transition-colors hover:border-primary/60 hover:text-primary hover:opacity-100"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-background/20 px-3.5 py-2 text-xs font-bold opacity-80 transition-colors hover:border-primary/60 hover:text-primary hover:opacity-100"
                 >
                   <Instagram className="h-3.5 w-3.5" aria-hidden />
                   Instagram
@@ -544,7 +544,7 @@ function Footer() {
                   <div>
                     <p className="text-sm font-bold">{b.name}</p>
                     <p className="text-xs opacity-70">{b.area}</p>
-                    <p className="mt-0.5 whitespace-nowrap text-xs opacity-70">Daily 10:00–21:00 · last session 20:30</p>
+                    <p className="mt-0.5 text-xs opacity-70 lg:whitespace-nowrap">Daily 10:00–21:00 · last session 20:30</p>
                   </div>
                 </li>
               ))}

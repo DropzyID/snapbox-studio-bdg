@@ -76,7 +76,7 @@ function LoginPage() {
               setEmail(DEMO_EMAIL);
               setPassword(DEMO_PASS);
             }}
-            className="mt-2 text-xs font-bold text-secondary underline underline-offset-4"
+            className="mt-1 inline-flex min-h-11 items-center text-xs font-bold text-secondary underline underline-offset-4"
           >
             Fill in demo login
           </button>
