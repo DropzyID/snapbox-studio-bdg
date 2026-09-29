@@ -24,6 +24,7 @@ export type Database = {
           id: string
           package_id: string
           people_count: number
+          recovered_via_waitlist: boolean
           slot_end: string
           slot_start: string
           status: Database["public"]["Enums"]["booking_status"]
@@ -39,6 +40,7 @@ export type Database = {
           id?: string
           package_id: string
           people_count: number
+          recovered_via_waitlist?: boolean
           slot_end: string
           slot_start: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -54,6 +56,7 @@ export type Database = {
           id?: string
           package_id?: string
           people_count?: number
+          recovered_via_waitlist?: boolean
           slot_end?: string
           slot_start?: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -157,6 +160,7 @@ export type Database = {
           customer_name: string
           id: string
           slot_start: string
+          status: string
           whatsapp: string
         }
         Insert: {
@@ -165,6 +169,7 @@ export type Database = {
           customer_name: string
           id?: string
           slot_start: string
+          status?: string
           whatsapp: string
         }
         Update: {
@@ -173,6 +178,7 @@ export type Database = {
           customer_name?: string
           id?: string
           slot_start?: string
+          status?: string
           whatsapp?: string
         }
         Relationships: [
@@ -181,6 +187,54 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waitlist_offers: {
+        Row: {
+          branch_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          slot_start: string
+          status: string
+          token: string
+          waitlist_id: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          slot_start: string
+          status?: string
+          token: string
+          waitlist_id: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          slot_start?: string
+          status?: string
+          token?: string
+          waitlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_offers_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_offers_waitlist_id_fkey"
+            columns: ["waitlist_id"]
+            isOneToOne: false
+            referencedRelation: "waitlist"
             referencedColumns: ["id"]
           },
         ]
@@ -197,6 +251,7 @@ export type Database = {
       create_booking: {
         Args: {
           _branch_id: string
+          _claim_token?: string
           _customer_name: string
           _package_id: string
           _people_count: number
@@ -232,7 +287,39 @@ export type Database = {
           slot_start: string
         }[]
       }
+      get_waitlist_offer: {
+        Args: { _token: string }
+        Returns: {
+          branch_id: string
+          expires_at: string
+          slot_start: string
+          status: string
+        }[]
+      }
+      join_waitlist: {
+        Args: {
+          _branch_id: string
+          _customer_name: string
+          _slot_start: string
+          _whatsapp: string
+        }
+        Returns: boolean
+      }
+      list_active_offers: {
+        Args: never
+        Returns: {
+          branch_id: string
+          expires_at: string
+          slot_start: string
+          token: string
+        }[]
+      }
       normalize_wa: { Args: { _w: string }; Returns: string }
+      offer_next_waitlist: {
+        Args: { _branch_id: string; _slot_start: string }
+        Returns: undefined
+      }
+      process_waitlist_offers: { Args: never; Returns: undefined }
       reschedule_my_booking: {
         Args: { _booking_code: string; _new_start: string; _whatsapp: string }
         Returns: boolean
