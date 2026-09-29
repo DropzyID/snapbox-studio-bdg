@@ -103,24 +103,23 @@ function Hero() {
 
         <h1 className="max-w-3xl font-display text-3xl leading-tight font-bold tracking-tight text-balance sm:text-5xl sm:leading-[1.15] lg:text-6xl">
           Your moment. Your frame.{" "}
-          <span className="relative inline-block text-primary">
-            Booked in 30 seconds.
-            <svg
-              aria-hidden
-              viewBox="0 0 300 12"
-              className="absolute -bottom-1 left-0 w-full text-primary"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M2 9C60 3 150 2 298 7"
-                stroke="currentColor"
-                strokeWidth="5"
-                strokeLinecap="round"
-                fill="none"
-              />
-            </svg>
-          </span>
+          <span className="text-primary">Booked in 30 seconds.</span>
         </h1>
+
+        <svg
+          aria-hidden
+          viewBox="0 0 300 12"
+          className="mt-2 h-3 w-52 text-primary sm:w-72"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M2 9C60 3 150 2 298 7"
+            stroke="currentColor"
+            strokeWidth="5"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </svg>
 
         <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           A self-photo studio where you control the shutter. Pick a backdrop, grab your
