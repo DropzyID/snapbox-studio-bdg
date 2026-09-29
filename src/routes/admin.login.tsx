@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { SimpleShell } from "@/components/SimpleShell";
 
 export const Route = createFileRoute("/admin/login")({
-  ssr: false,
   head: () => ({
     meta: [
       { title: "Owner Login — Snapbox Studio" },
