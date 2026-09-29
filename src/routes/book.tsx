@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ArrowRight, Camera, Check, MapPin, PartyPopper, Star } from "lucide-react";
 
 const searchSchema = z.object({
@@ -65,12 +66,15 @@ const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 const toKey = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
-// Mock availability: deterministic pseudo-random per branch/date/time
-function isSlotTaken(branch: BranchId, dateKey: string, time: string) {
-  const s = `${branch}|${dateKey}|${time}`;
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return h % 100 < 30;
+// Slot times are Bandung local time (WIB, UTC+7)
+const slotStart = (dateKey: string, time: string) => new Date(`${dateKey}T${time}:00+07:00`);
+
+type Range = { start: number; end: number };
+
+function isSlotTaken(booked: Range[], dateKey: string, time: string, minutes: number) {
+  const s = slotStart(dateKey, time).getTime();
+  const e = s + minutes * 60_000;
+  return booked.some((b) => b.start < e && b.end > s);
 }
 
 function isPast(dateKey: string, time: string, now: Date) {
@@ -110,9 +114,32 @@ function BookPage() {
   const [people, setPeople] = useState<number>(search.package === "duo" ? 2 : search.package === "group" ? 3 : 1);
   const [errors, setErrors] = useState<Errors>({});
   const [confirmed, setConfirmed] = useState(false);
+  const [bookingCode, setBookingCode] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [booked, setBooked] = useState<Range[]>([]);
+  const [slotsVersion, setSlotsVersion] = useState(0);
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => setNow(new Date()), []);
+
+  useEffect(() => {
+    if (!branch || !now) return;
+    let cancelled = false;
+    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 16);
+    supabase
+      .rpc("get_booked_slots", { _branch_id: branch, _from: from.toISOString(), _to: to.toISOString() })
+      .then(({ data, error }) => {
+        if (cancelled || error) return;
+        setBooked(
+          (data ?? []).map((r) => ({ start: new Date(r.slot_start).getTime(), end: new Date(r.slot_end).getTime() })),
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [branch, now, slotsVersion]);
 
   const days = useMemo(() => {
     if (!now) return [];
@@ -134,7 +161,7 @@ function BookPage() {
   };
 
   const slotDisabled = (t: string) =>
-    !branch || !date || !now || isSlotTaken(branch, date, t) || isPast(date, t, now);
+    !branch || !date || !now || isSlotTaken(booked, date, t, selectedPkg?.minutes ?? 30) || isPast(date, t, now);
 
   function validate(s: number): Errors {
     const e: Errors = {};
@@ -173,7 +200,8 @@ function BookPage() {
     setErrors({});
     setStep((s) => Math.max(0, s - 1));
   };
-  const confirm = () => {
+  const confirm = async () => {
+    if (submitting) return;
     for (let s = 0; s < 4; s++) {
       const e = validate(s);
       if (Object.keys(e).length) {
@@ -182,6 +210,31 @@ function BookPage() {
         return;
       }
     }
+    if (!branch || !pkg || !backdrop || !date || !time) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    const { data, error } = await supabase.rpc("create_booking", {
+      _branch_id: branch,
+      _package_id: pkg,
+      _theme_id: backdrop,
+      _customer_name: name.trim(),
+      _whatsapp: whatsapp.replace(/[\s-]/g, ""),
+      _people_count: people,
+      _slot_start: slotStart(date, time).toISOString(),
+    });
+    setSubmitting(false);
+    if (error) {
+      if (error.message.includes("slot_taken") || error.message.includes("invalid_slot")) {
+        setTime(null);
+        setSlotsVersion((v) => v + 1);
+        setErrors({ time: "Sorry, this slot was just taken. Please pick another time." });
+        setStep(2);
+      } else {
+        setSubmitError("Something went wrong while saving your booking. Please try again.");
+      }
+      return;
+    }
+    setBookingCode(data);
     setConfirmed(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -204,7 +257,11 @@ function BookPage() {
             {selectedPkg?.name} · {selectedBackdrop?.name} backdrop at Snapbox {selectedBranch?.name} on{" "}
             {dateLabel(date)}, {time}. We'll send the details to your WhatsApp.
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">(Demo only — no real booking was made yet.)</p>
+          {bookingCode && (
+            <p className="mt-4 inline-block rounded-2xl border-2 border-foreground bg-accent px-4 py-2 font-display text-lg font-bold tracking-widest">
+              {bookingCode}
+            </p>
+          )}
           <Link
             to="/"
             className="shadow-pop mt-6 inline-flex rounded-2xl bg-secondary px-6 py-3 font-bold text-secondary-foreground"
@@ -494,11 +551,12 @@ function BookPage() {
                     {selectedPkg ? rupiah(selectedPkg.price) : "—"}
                   </span>
                 </div>
+                {submitError && <p className="mt-3 text-sm font-semibold text-destructive">{submitError}</p>}
               </div>
             )}
 
             <div className="mt-8 hidden items-center justify-between gap-3 lg:flex">
-              <NavButtons step={step} back={back} next={next} confirm={confirm} />
+              <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} />
             </div>
           </section>
 
@@ -528,7 +586,7 @@ function BookPage() {
             </div>
           </div>
           <div className="flex shrink-0 gap-2">
-            <NavButtons step={step} back={back} next={next} confirm={confirm} compact />
+            <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} compact />
           </div>
         </div>
       </div>
@@ -565,12 +623,14 @@ function NavButtons({
   next,
   confirm,
   compact,
+  busy,
 }: {
   step: number;
   back: () => void;
   next: () => void;
   confirm: () => void;
   compact?: boolean | undefined;
+  busy?: boolean | undefined;
 }) {
   const last = step === STEPS.length - 1;
   return (
@@ -591,11 +651,12 @@ function NavButtons({
       <button
         type="button"
         onClick={last ? confirm : next}
+        disabled={busy}
         className={`shadow-pop-sm inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition-transform hover:-translate-y-0.5 ${
           last ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"
         }`}
       >
-        {last ? "Confirm booking" : "Next"}
+        {last ? (busy ? "Booking…" : "Confirm booking") : "Next"}
         {last ? <Check className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
       </button>
     </>
