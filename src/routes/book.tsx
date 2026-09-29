@@ -75,7 +75,7 @@ function isSlotTaken(branch: BranchId, dateKey: string, time: string) {
 
 function isPast(dateKey: string, time: string, now: Date) {
   if (dateKey !== toKey(now)) return false;
-  const [hh, mm] = time.split(":").map(Number);
+  const [hh = 0, mm = 0] = time.split(":").map(Number);
   return hh * 60 + mm <= now.getHours() * 60 + now.getMinutes();
 }
 
@@ -95,7 +95,7 @@ const detailsSchema = z.object({
     ),
 });
 
-type Errors = Partial<Record<string, string>>;
+type Errors = { [K in "branch"|"pkg"|"backdrop"|"date"|"time"|"name"|"whatsapp"|"people"]?: string | undefined };
 
 function BookPage() {
   const search = Route.useSearch();
@@ -150,7 +150,7 @@ function BookPage() {
     }
     if (s === 3) {
       const r = detailsSchema.safeParse({ name, whatsapp });
-      if (!r.success) for (const issue of r.error.issues) e[String(issue.path[0])] ??= issue.message;
+      if (!r.success) for (const issue of r.error.issues) e[issue.path[0] as "name" | "whatsapp"] ??= issue.message;
       if (selectedPkg && (people < selectedPkg.min || people > selectedPkg.max || !Number.isInteger(people))) {
         e.people =
           selectedPkg.min === selectedPkg.max
@@ -188,7 +188,7 @@ function BookPage() {
 
   const dateLabel = (key: string | null) => {
     if (!key) return "—";
-    const [y, m, d] = key.split("-").map(Number);
+    const [y = 0, m = 1, d = 1] = key.split("-").map(Number);
     return new Date(y, m - 1, d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
   };
 
@@ -560,7 +560,7 @@ function NavButtons({
   back: () => void;
   next: () => void;
   confirm: () => void;
-  compact?: boolean;
+  compact?: boolean | undefined;
 }) {
   const last = step === STEPS.length - 1;
   return (
@@ -598,10 +598,10 @@ function Summary({
   backdrop,
   when,
 }: {
-  branch?: string;
+  branch?: string | undefined;
   pkg: (typeof PACKAGES)[number] | null;
-  backdrop?: string;
-  when?: string;
+  backdrop?: string | undefined;
+  when?: string | undefined;
 }) {
   const rows: [string, string | undefined][] = [
     ["Branch", branch],
@@ -632,7 +632,7 @@ function StepTitle({ children }: { children: React.ReactNode }) {
   return <h2 className="mb-4 font-display text-lg font-bold sm:text-xl">{children}</h2>;
 }
 
-function FieldError({ msg }: { msg?: string }) {
+function FieldError({ msg }: { msg?: string | undefined }) {
   if (!msg) return null;
   return (
     <p role="alert" className="mt-3 text-sm font-semibold text-destructive">
@@ -641,7 +641,7 @@ function FieldError({ msg }: { msg?: string }) {
   );
 }
 
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+function Field({ label, error, children }: { label: string; error?: string | undefined; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-bold">{label}</span>
