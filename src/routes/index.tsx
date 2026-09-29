@@ -461,6 +461,15 @@ function Footer() {
 
         <div className="mt-12 border-t border-background/15 pt-6 text-xs opacity-60">
           © {new Date().getFullYear()} Snapbox Studio Bandung. All rights reserved.
+          <span aria-hidden className="mx-2 opacity-50">
+            ·
+          </span>
+          <Link
+            to="/waitlist-demo"
+            className="text-[11px] underline decoration-background/30 underline-offset-2 transition-colors hover:decoration-primary hover:text-primary"
+          >
+            Demo tools
+          </Link>
         </div>
       </div>
     </footer>
