@@ -839,7 +839,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               Snapbox<span className="text-primary">.</span>
             </span>
           </Link>
-          <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+          <Link to="/" className="inline-flex min-h-11 items-center px-1 text-sm font-medium text-muted-foreground hover:text-foreground">
             ← Home
           </Link>
         </nav>
