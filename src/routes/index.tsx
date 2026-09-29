@@ -329,7 +329,10 @@ function Pricing() {
               ))}
             </ul>
             <div className="mt-8">
-              <BookButton label={`Book ${plan.name}`} />
+              <BookButton
+                label={`Book ${plan.name}`}
+                variant={plan.featured ? "secondary" : "primary"}
+              />
             </div>
           </article>
         ))}
