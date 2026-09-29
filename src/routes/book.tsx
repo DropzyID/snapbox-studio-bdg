@@ -302,7 +302,8 @@ function BookPage() {
                 </div>
                 <div>
                   <StepTitle>Choose a backdrop</StepTitle>
-                  <div className="grid grid-cols-3 gap-3">
+                  <BoothPreview theme={backdrop} />
+                  <div className="mt-4 grid grid-cols-3 gap-3">
                     {BACKDROPS.map((b) => (
                       <button
                         key={b.id}
@@ -311,8 +312,17 @@ function BookPage() {
                           setBackdrop(b.id);
                           setErrors((e) => ({ ...e, backdrop: undefined }));
                         }}
-                        className={`${cardBase} ${cardState(backdrop === b.id)} p-2`}
+                        className={`${cardBase} relative p-2 ${
+                          backdrop === b.id
+                            ? "border-primary bg-accent shadow-pop-sm -translate-y-0.5"
+                            : "border-border bg-card hover:border-foreground/40"
+                        }`}
                       >
+                        {b.id === "y2k" && (
+                          <span className="absolute -top-2.5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
+                            Most booked
+                          </span>
+                        )}
                         <div className={`${b.cls} aspect-[3/4] rounded-xl`} />
                         <div className="mt-2 text-center font-display text-sm font-bold">{b.name}</div>
                       </button>
@@ -625,6 +635,135 @@ function Summary({
         <span className="font-display text-xl font-bold text-primary">{pkg ? rupiah(pkg.price) : "Rp —"}</span>
       </div>
     </div>
+  );
+}
+
+const FLOOR_COLORS: Record<BackdropId, string> = {
+  y2k: "oklch(0.42 0.14 330)",
+  vintage: "oklch(0.38 0.07 45)",
+  minimal: "oklch(0.6 0.025 80)",
+};
+
+const BACKDROP_MOODS: Record<BackdropId, string> = {
+  y2k: "Bubblegum energy — chrome, stars and a butterfly clip.",
+  vintage: "Warm amber film vibes — soft grain and nostalgic light.",
+  minimal: "Clean and quiet — soft cream tones that let you shine.",
+};
+
+function BoothPreview({ theme }: { theme: BackdropId | null }) {
+  const t: BackdropId = theme ?? "y2k";
+  const on = (id: BackdropId) => (t === id ? "opacity-100" : "opacity-0");
+  return (
+    <div>
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border-2 border-foreground shadow-pop-sm sm:aspect-[16/10]">
+        {/* Theme backgrounds */}
+        <div className={`backdrop-y2k absolute inset-0 transition-opacity duration-500 ${on("y2k")}`} />
+        <div className={`backdrop-vintage absolute inset-0 transition-opacity duration-500 ${on("vintage")}`} />
+        <div className={`backdrop-minimal absolute inset-0 transition-opacity duration-500 ${on("minimal")}`} />
+
+        {/* Floor */}
+        <div
+          className="absolute inset-x-0 bottom-0 z-[5] h-[15%] transition-colors duration-500"
+          style={{ backgroundColor: FLOOR_COLORS[t] }}
+        />
+
+        {/* Y2K: stars, chrome orbs, butterfly clip */}
+        <div className={`absolute inset-0 transition-opacity duration-500 ${on("y2k")}`} aria-hidden="true">
+          <Star className="sb-float absolute left-[10%] top-[24%] h-5 w-5 fill-white/85 text-white" />
+          <Star className="sb-float-late absolute left-[32%] top-[12%] h-3.5 w-3.5 fill-white/70 text-white" />
+          <Star className="sb-float-late absolute right-[28%] top-[34%] h-4 w-4 fill-white/75 text-white" />
+          <div className="sb-chrome absolute left-[14%] top-[56%] h-6 w-6 rounded-full" />
+          <div className="sb-chrome absolute right-[9%] top-[52%] h-11 w-11 rounded-full" />
+          <Butterfly className="sb-flutter absolute right-[11%] top-[13%] h-8 w-8" />
+        </div>
+
+        {/* Vintage: polaroid + plant props */}
+        <div className={`absolute inset-0 transition-opacity duration-500 ${on("vintage")}`} aria-hidden="true">
+          <div className="absolute bottom-[17%] left-[7%] w-12 -rotate-6 rounded-sm bg-white p-1 pb-4 shadow-lg sm:w-14">
+            <div
+              className="aspect-square w-full rounded-[2px]"
+              style={{ background: "linear-gradient(135deg, oklch(0.82 0.09 75), oklch(0.55 0.09 50))" }}
+            />
+          </div>
+          <Plant className="absolute bottom-[14%] right-[6%] h-14 sm:h-16" />
+        </div>
+
+        {/* Minimal: one thin arch */}
+        <div className={`absolute inset-0 transition-opacity duration-500 ${on("minimal")}`} aria-hidden="true">
+          <div className="absolute left-1/2 top-[16%] h-[58%] w-[44%] -translate-x-1/2 rounded-t-full border-2 border-foreground/25" />
+        </div>
+
+        {/* Silhouettes */}
+        <div className="absolute inset-x-0 bottom-[13%] z-10 flex items-end justify-center text-foreground/85">
+          <Silhouettes />
+        </div>
+
+        {/* Curtains + camera + film grain */}
+        <div className="sb-curtain absolute inset-y-0 left-0 z-20 w-3.5 sm:w-4" aria-hidden="true" />
+        <div className="sb-curtain absolute inset-y-0 right-0 z-20 w-3.5 sm:w-4" aria-hidden="true" />
+        <div className="absolute inset-x-0 top-0 z-20" aria-hidden="true">
+          <div className="h-4 bg-foreground sm:h-5" />
+          <div className="flex">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-3.5 flex-1 rounded-b-full bg-foreground sm:h-4" />
+            ))}
+          </div>
+        </div>
+        <div className={`absolute inset-0 z-30 transition-opacity duration-500 ${on("vintage")}`} aria-hidden="true">
+          <div className="sb-grain absolute inset-0" />
+        </div>
+        <div className="absolute left-1/2 top-1 z-30 grid h-9 w-9 -translate-x-1/2 place-items-center rounded-full border-2 border-foreground bg-card">
+          <Camera className="h-4 w-4" />
+        </div>
+      </div>
+      <p className="mt-3 min-h-5 text-center text-sm text-muted-foreground">
+        {theme ? BACKDROP_MOODS[theme] : "Tap a theme below — the booth lights up."}
+      </p>
+    </div>
+  );
+}
+
+function Silhouettes() {
+  return (
+    <svg viewBox="0 0 220 120" className="h-24 sm:h-36" fill="currentColor" aria-hidden="true">
+      {/* person 1 — waving */}
+      <circle cx="76" cy="26" r="16" />
+      <path d="M54 120 L54 76 Q54 50 76 50 Q98 50 98 76 L98 120 Z" />
+      <path d="M98 70 Q112 64 116 44" stroke="currentColor" strokeWidth="10" strokeLinecap="round" fill="none" />
+      {/* person 2 — peace sign */}
+      <circle cx="152" cy="34" r="13" />
+      <path d="M134 120 L134 82 Q134 60 152 60 Q170 60 170 82 L170 120 Z" />
+      <path d="M170 74 Q182 68 184 52" stroke="currentColor" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <path d="M182 52 l3 -10 M186 52 l5 -8" stroke="currentColor" strokeWidth="4" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
+function Butterfly({ className }: { className?: string | undefined }) {
+  return (
+    <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+      <path d="M15 16 C11 6 3 7 5 14 C3 21 11 24 15 16 Z" fill="#FFC9E3" stroke="#1A1A2E" strokeWidth="1" />
+      <path d="M17 16 C21 6 29 7 27 14 C29 21 21 24 17 16 Z" fill="#B9C6FF" stroke="#1A1A2E" strokeWidth="1" />
+      <ellipse cx="16" cy="16" rx="1.4" ry="5.5" fill="#1A1A2E" />
+      <path
+        d="M15 11 Q13 8 11 7 M17 11 Q19 8 21 7"
+        stroke="#1A1A2E"
+        strokeWidth="1"
+        fill="none"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function Plant({ className }: { className?: string | undefined }) {
+  return (
+    <svg viewBox="0 0 40 52" className={className} aria-hidden="true">
+      <path d="M20 30 Q6 22 5 6 Q19 12 20 30" fill="#5B8C5A" />
+      <path d="M20 30 Q34 22 35 6 Q21 12 20 30" fill="#3F6B3F" />
+      <path d="M20 30 L20 10" stroke="#3F6B3F" strokeWidth="2" fill="none" />
+      <path d="M11 32 h18 l-2.5 18 h-13 z" fill="#C96F4A" />
+    </svg>
   );
 }
 
