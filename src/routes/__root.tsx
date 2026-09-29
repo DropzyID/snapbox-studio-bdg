@@ -77,23 +77,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Snapbox Studio — Self-Photo Studio in Bandung" },
+      {
+        name: "description",
+        content:
+          "Book a self-photo studio session at Snapbox Studio Bandung. Y2K, Vintage and Minimal backdrops from Rp 60.000. Dago & Buah Batu branches.",
+      },
+      { name: "author", content: "Snapbox Studio" },
+      { property: "og:title", content: "Snapbox Studio — Self-Photo Studio in Bandung" },
+      {
+        property: "og:description",
+        content:
+          "Your moment. Your frame. Booked in 30 seconds. Self-photo studio sessions in Dago & Buah Batu, Bandung.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-    ],
-  }),
+ec {
+    meta: [
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
