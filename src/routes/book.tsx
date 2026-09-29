@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ArrowRight, Camera, Check, MapPin, PartyPopper, Star } from "lucide-react";
+import { DepositPayment } from "@/components/DepositPayment";
+import { createPaymentSession, depositFor, type PaymentSession } from "@/lib/payment";
 
 const searchSchema = z.object({
   package: z.enum(["solo", "duo", "group"]).optional().catch(undefined),
@@ -115,6 +117,7 @@ function BookPage() {
   const [errors, setErrors] = useState<Errors>({});
   const [confirmed, setConfirmed] = useState(false);
   const [bookingCode, setBookingCode] = useState<string | null>(null);
+  const [payment, setPayment] = useState<PaymentSession | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [booked, setBooked] = useState<Range[]>([]);
@@ -249,8 +252,16 @@ function BookPage() {
       return;
     }
     setBookingCode(data);
-    setConfirmed(true);
+    setPayment(createPaymentSession(data, depositFor(selectedPkg?.price ?? 0).deposit));
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const bookAgain = () => {
+    setPayment(null);
+    setBookingCode(null);
+    setTime(null);
+    setSlotsVersion((v) => v + 1);
+    setStep(2);
   };
 
   const dateLabel = (key: string | null) => {
@@ -258,6 +269,24 @@ function BookPage() {
     const [y = 0, m = 1, d = 1] = key.split("-").map(Number);
     return new Date(y, m - 1, d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
   };
+
+  const amounts = depositFor(selectedPkg?.price ?? 0);
+
+  if (payment && !confirmed) {
+    return (
+      <Shell>
+        <DepositPayment
+          session={payment}
+          balance={amounts.balance}
+          onPaid={() => {
+            setConfirmed(true);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          onBookAgain={bookAgain}
+        />
+      </Shell>
+    );
+  }
 
   if (confirmed) {
     return (
@@ -276,6 +305,16 @@ function BookPage() {
               {bookingCode}
             </p>
           )}
+          <div className="mt-5 grid grid-cols-2 gap-3 text-left">
+            <div className="rounded-2xl border-2 border-foreground bg-accent p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Deposit paid</p>
+              <p className="mt-1 font-display text-lg font-bold">{rupiah(amounts.deposit)}</p>
+            </div>
+            <div className="rounded-2xl border-2 border-border p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Due at studio</p>
+              <p className="mt-1 font-display text-lg font-bold">{rupiah(amounts.balance)}</p>
+            </div>
+          </div>
           <Link
             to="/"
             className="shadow-pop mt-6 inline-flex rounded-2xl bg-secondary px-6 py-3 font-bold text-secondary-foreground"
