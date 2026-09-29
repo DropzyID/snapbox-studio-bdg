@@ -113,7 +113,7 @@ export function DepositPayment({
           aria-label="Demo QRIS code"
           dangerouslySetInnerHTML={{ __html: svg }}
         />
-        <p className="mt-3 text-sm text-muted-foreground">Scan with any e-wallet or banking app</p>
+        <p className="mt-3 text-sm text-muted-foreground">Demo QR - no real payment is made</p>
       </div>
 
       {error && <p className="mt-3 text-sm font-semibold text-destructive">{error}</p>}

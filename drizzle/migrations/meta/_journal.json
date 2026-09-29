@@ -15,6 +15,13 @@
       "when": 1790652100781,
       "tag": "0001_deposit_simulation",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790652353551,
+      "tag": "0002_manage_booking",
+      "breakpoints": true
     }
   ]
 }
