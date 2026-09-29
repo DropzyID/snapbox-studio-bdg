@@ -7,6 +7,7 @@ import { downloadIcs, whatsappLink } from "@/lib/booking-actions";
 import { DepositPayment } from "@/components/DepositPayment";
 import { WaitlistDialog } from "@/components/WaitlistDialog";
 import { createPaymentSession, depositFor, type PaymentSession } from "@/lib/payment";
+import { usePackagePrices } from "@/lib/packages";
 
 const searchSchema = z.object({
   package: z.enum(["solo", "duo", "group"]).optional().catch(undefined),
@@ -186,7 +187,9 @@ function BookPage() {
     });
   }, [now]);
 
-  const selectedPkg = PACKAGES.find((p) => p.id === pkg) ?? null;
+  const livePrices = usePackagePrices();
+  const PKGS = PACKAGES.map((p) => ({ ...p, price: livePrices[p.id] ?? p.price }));
+  const selectedPkg = PKGS.find((p) => p.id === pkg) ?? null;
   const selectedBranch = BRANCHES.find((b) => b.id === branch) ?? null;
   const selectedBackdrop = BACKDROPS.find((b) => b.id === backdrop) ?? null;
 
@@ -200,7 +203,7 @@ function BookPage() {
 
   const choosePkg = (id: PackageId) => {
     setPkg(id);
-    const p = PACKAGES.find((x) => x.id === id)!;
+    const p = PKGS.find((x) => x.id === id)!;
     setPeople((n) => Math.min(p.max, Math.max(p.min, n)));
     setTime((t) => (t && !fitsBeforeClose(t, p.minutes) ? null : t));
     setErrors((e) => ({ ...e, pkg: undefined }));
@@ -472,7 +475,7 @@ function BookPage() {
                 <div>
                   <StepTitle>Pick a package</StepTitle>
                   <div className="grid gap-3 sm:grid-cols-3">
-                    {PACKAGES.map((p) => (
+                    {PKGS.map((p) => (
                       <button
                         key={p.id}
                         type="button"
