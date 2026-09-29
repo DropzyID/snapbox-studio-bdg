@@ -1,24 +1,407 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Camera, MapPin, Sparkles } from "lucide-react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      {
+        title: "Snapbox Studio — Book a Self-Photo Session in Bandung",
+      },
+      {
+        name: "description",
+        content:
+          "Your moment. Your frame. Booked in 30 seconds. Self-photo studio sessions with Y2K, Vintage and Minimal backdrops at our Dago & Buah Batu branches, Bandung.",
+      },
+      {
+        property: "og:title",
+        content: "Snapbox Studio — Book a Self-Photo Session in Bandung",
+      },
+      {
+        property: "og:description",
+        content:
+          "Your moment. Your frame. Booked in 30 seconds. Photobox sessions from Rp 60.000 in Dago & Buah Batu, Bandung.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+const scrollTo = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+};
+
+function BookButton({
+  label = "Book a session",
+  variant = "primary",
+}: {
+  label?: string;
+  variant?: "primary" | "secondary";
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => scrollTo("pricing")}
+      className={
+        variant === "secondary"
+          ? "shadow-pop inline-flex items-center gap-2 rounded-2xl bg-secondary px-6 py-3.5 text-sm font-bold tracking-wide text-secondary-foreground transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-pop-sm active:translate-y-0.5 active:shadow-none sm:text-base"
+          : "shadow-pop inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-bold tracking-wide text-primary-foreground transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-pop-sm active:translate-y-0.5 active:shadow-none sm:text-base"
+      }
+    >
+      <Camera className="h-4 w-4 shrink-0" aria-hidden />
+      {label}
+    </button>
+  );
+}
+
+function Navbar() {
+  return (
+    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur-md">
+      <nav className="mx-auto grid h-16 w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 sm:flex sm:justify-between sm:px-6">
+        <a href="/" className="flex min-w-0 items-center gap-2.5">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
+            <Camera className="h-5 w-5" aria-hidden />
+          </span>
+          <span className="truncate font-display text-base font-bold tracking-tight sm:text-lg">
+            Snapbox<span className="text-primary">.</span>
+          </span>
+        </a>
+        <div className="flex shrink-0 items-center gap-6">
+          <div className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
+            <button onClick={() => scrollTo("how-it-works")} className="transition-colors hover:text-foreground">
+              How it works
+            </button>
+            <button onClick={() => scrollTo("backdrops")} className="transition-colors hover:text-foreground">
+              Backdrops
+            </button>
+            <button onClick={() => scrollTo("pricing")} className="transition-colors hover:text-foreground">
+              Pricing
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => scrollTo("pricing")}
+            className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
+          >
+            Book
+          </button>
+        </div>
+      </nav>
+    </header>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="relative overflow-hidden">
+      {/* soft background blobs */}
+      <div
+        aria-hidden
+        className="hero-blob-pink pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full opacity-30 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="hero-blob-blue pointer-events-none absolute top-40 -left-28 h-80 w-80 rounded-full opacity-25 blur-3xl"
+      />
+
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center px-4 pt-16 pb-20 text-center sm:px-6 sm:pt-24 sm:pb-28">
+        <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-bold tracking-widest uppercase text-secondary">
+          <Sparkles className="h-3.5 w-3.5" aria-hidden />
+          Photobox · Bandung
+        </span>
+
+        <h1 className="max-w-3xl font-display text-3xl leading-tight font-bold tracking-tight text-balance sm:text-5xl sm:leading-[1.15] lg:text-6xl">
+          Your moment. Your frame.{" "}
+          <span className="text-primary">Booked in 30 seconds.</span>
+        </h1>
+
+        <svg
+          aria-hidden
+          viewBox="0 0 300 12"
+          className="mt-2 h-3 w-52 text-primary sm:w-72"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M2 9C60 3 150 2 298 7"
+            stroke="currentColor"
+            strokeWidth="5"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </svg>
+
+        <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          A self-photo studio where you control the shutter. Pick a backdrop, grab your
+          crew, and walk out with printed strips — no photographer needed.
+        </p>
+
+        <div className="mt-8">
+          <BookButton />
+        </div>
+
+        {/* placeholder photo-strip collage */}
+        <div className="mt-14 grid w-full max-w-2xl grid-cols-3 gap-3 sm:gap-6">
+          <div className="rotate-[-6deg] rounded-2xl border border-border bg-card p-2 shadow-pop-sm transition-transform hover:rotate-0 sm:p-3">
+            <div className="backdrop-y2k aspect-[3/4] w-full rounded-xl" />
+          </div>
+          <div className="rotate-[3deg] rounded-2xl border border-border bg-card p-2 shadow-pop-sm transition-transform hover:rotate-0 sm:p-3 sm:translate-y-4">
+            <div className="backdrop-vintage aspect-[3/4] w-full rounded-xl" />
+          </div>
+          <div className="rotate-[7deg] rounded-2xl border border-border bg-card p-2 shadow-pop-sm transition-transform hover:rotate-0 sm:p-3">
+            <div className="backdrop-minimal aspect-[3/4] w-full rounded-xl" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const steps = [
+  {
+    n: "01",
+    title: "Pick your backdrop",
+    text: "Choose from Y2K, Vintage or Minimal when you book — the set is ready when you arrive.",
+  },
+  {
+    n: "02",
+    title: "Strike your poses",
+    text: "Step in with your crew, use the remote shutter, and take as many frames as your session allows.",
+  },
+  {
+    n: "03",
+    title: "Print your strips",
+    text: "Pick your favorite frames on the touchscreen and collect your printed photo strips on the spot.",
+  },
+];
+
+function HowItWorks() {
+  return (
+    <section id="how-it-works" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 sm:py-24">
+      <div className="text-center">
+        <p className="text-xs font-bold tracking-widest uppercase text-primary">How it works</p>
+        <h2 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-4xl">
+          Three steps to your strip
+        </h2>
+      </div>
+
+      <ol className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
+        {steps.map((step) => (
+          <li
+            key={step.n}
+            className="rounded-3xl border border-border bg-card p-6 shadow-pop-sm sm:p-8"
+          >
+            <span className="inline-grid h-12 w-12 place-items-center rounded-2xl bg-secondary font-display text-sm font-bold text-secondary-foreground">
+              {step.n}
+            </span>
+            <h3 className="mt-5 font-display text-lg font-bold sm:text-xl">{step.title}</h3>
+            <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {step.text}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+const backdrops = [
+  {
+    name: "Y2K",
+    tagline: "Chrome, bubblegum & dial-up dreams",
+    gradient: "backdrop-y2k",
+  },
+  {
+    name: "Vintage",
+    tagline: "Faded film, warm & nostalgic",
+    gradient: "backdrop-vintage",
+  },
+  {
+    name: "Minimal",
+    tagline: "Clean lines, soft light, all you",
+    gradient: "backdrop-minimal",
+  },
+];
+
+function Backdrops() {
+  return (
+    <section id="backdrops" className="w-full scroll-mt-20 bg-accent py-16 sm:py-24">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <div className="flex flex-col gap-3 text-center sm:items-center">
+          <p className="text-xs font-bold tracking-widest uppercase text-secondary">Backdrops</p>
+          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-4xl">
+            Pick a vibe for your set
+          </h2>
+          <p className="max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Every backdrop is styled and refreshed daily. Not sure which one? You can
+            always switch between sessions.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
+          {backdrops.map((b) => (
+            <article
+              key={b.name}
+              className="group overflow-hidden rounded-3xl border border-border bg-card shadow-pop-sm transition-transform duration-200 hover:-translate-y-1"
+            >
+              <div className={`${b.gradient} aspect-[4/5] w-full transition-transform duration-300 group-hover:scale-[1.03]`} />
+              <div className="p-5 sm:p-6">
+                <h3 className="font-display text-lg font-bold sm:text-xl">{b.name}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{b.tagline}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const plans = [
+  {
+    name: "Solo",
+    price: "Rp 60.000",
+    duration: "15 min",
+    features: ["1 backdrop of your choice", "Printed photo strips", "Props & remote shutter"],
+    featured: false,
+  },
+  {
+    name: "Duo",
+    price: "Rp 100.000",
+    duration: "20 min",
+    features: ["1 backdrop of your choice", "Printed photo strips", "Props & remote shutter", "Digital copies via QR"],
+    featured: true,
+  },
+  {
+    name: "Group",
+    price: "Rp 180.000",
+    duration: "30 min",
+    features: ["1 backdrop of your choice", "Printed photo strips", "Props & remote shutter", "Digital copies via QR"],
+    featured: false,
+  },
+];
+
+function Pricing() {
+  return (
+    <section id="pricing" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 sm:py-24">
+      <div className="text-center">
+        <p className="text-xs font-bold tracking-widest uppercase text-primary">Pricing</p>
+        <h2 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-4xl">
+          Simple rates, no surprises
+        </h2>
+      </div>
+
+      <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6 sm:items-stretch">
+        {plans.map((plan) => (
+          <article
+            key={plan.name}
+            className={
+              plan.featured
+                ? "relative flex flex-col rounded-3xl bg-primary p-6 text-primary-foreground shadow-pop sm:p-8 sm:-translate-y-2"
+                : "relative flex flex-col rounded-3xl border border-border bg-card p-6 shadow-pop-sm sm:p-8"
+            }
+          >
+            {plan.featured && (
+              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-foreground px-4 py-1 text-xs font-bold tracking-widest uppercase text-background">
+                Most popular
+              </span>
+            )}
+            <h3 className="font-display text-lg font-bold sm:text-xl">{plan.name}</h3>
+            <div className="mt-4 flex items-baseline gap-2">
+              <span className="font-display text-2xl font-bold sm:text-3xl">{plan.price}</span>
+              <span className={plan.featured ? "text-sm opacity-80" : "text-sm text-muted-foreground"}>
+                / {plan.duration}
+              </span>
+            </div>
+            <ul className="mt-6 flex-1 space-y-2.5 text-sm">
+              {plan.features.map((f) => (
+                <li key={f} className="flex items-start gap-2.5">
+                  <span
+                    aria-hidden
+                    className={
+                      plan.featured
+                        ? "mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary-foreground"
+                        : "mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary"
+                    }
+                  />
+                  <span className={plan.featured ? "opacity-95" : "text-muted-foreground"}>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8">
+              <BookButton
+                label={`Book ${plan.name}`}
+                variant={plan.featured ? "secondary" : "primary"}
+              />
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const branches = [
+  { name: "Dago", area: "Dago, Bandung" },
+  { name: "Buah Batu", area: "Buah Batu, Bandung" },
+];
+
+function Footer() {
+  return (
+    <footer className="w-full bg-foreground text-background">
+      <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="grid gap-10 sm:grid-cols-[1fr_auto] sm:gap-16">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
+                <Camera className="h-5 w-5" aria-hidden />
+              </span>
+              <span className="font-display text-lg font-bold tracking-tight">
+                Snapbox<span className="text-primary">.</span>
+              </span>
+            </div>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed opacity-70">
+              Self-photo studio in Bandung. Your moment, your frame — booked in 30 seconds.
+            </p>
+          </div>
+
+          <div>
+            <p className="text-xs font-bold tracking-widest uppercase opacity-60">Our branches</p>
+            <ul className="mt-4 space-y-3">
+              {branches.map((b) => (
+                <li key={b.name} className="flex items-center gap-3">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/20 text-primary">
+                    <MapPin className="h-4 w-4" aria-hidden />
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold">{b.name}</p>
+                    <p className="text-xs opacity-70">{b.area}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-12 border-t border-background/15 pt-6 text-xs opacity-60">
+          © {new Date().getFullYear()} Snapbox Studio Bandung. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background font-sans text-foreground antialiased">
+      <Navbar />
+      <main>
+        <Hero />
+        <HowItWorks />
+        <Backdrops />
+        <Pricing />
+      </main>
+      <Footer />
     </div>
   );
 }
