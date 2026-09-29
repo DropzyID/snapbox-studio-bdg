@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Camera, MapPin, Sparkles } from "lucide-react";
+import { Camera, MapPin, Menu, Sparkles, X } from "lucide-react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -58,9 +59,12 @@ function BookButton({
 }
 
 function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur-md">
-      <nav className="mx-auto grid h-16 w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 sm:flex sm:justify-between sm:px-6">
+      <nav className="mx-auto grid h-16 w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 px-4 sm:flex sm:justify-between sm:px-6">
         <a href="/" className="flex min-w-0 items-center gap-2.5">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
             <Camera className="h-5 w-5" aria-hidden />
@@ -80,6 +84,9 @@ function Navbar() {
             <button onClick={() => scrollTo("pricing")} className="transition-colors hover:text-foreground">
               Pricing
             </button>
+            <Link to="/manage" className="transition-colors hover:text-foreground">
+              Manage booking
+            </Link>
           </div>
           <Link
             to="/book"
@@ -88,7 +95,56 @@ function Navbar() {
             Book
           </Link>
         </div>
+        <button
+          type="button"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+          className="grid h-10 w-10 place-items-center rounded-xl border border-border bg-card text-foreground md:hidden"
+        >
+          {menuOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
+        </button>
       </nav>
+      {menuOpen && (
+        <div className="border-t border-border/70 bg-background px-4 py-4 md:hidden">
+          <div className="flex flex-col gap-1 text-sm font-medium text-muted-foreground">
+            <button
+              onClick={() => {
+                closeMenu();
+                scrollTo("how-it-works");
+              }}
+              className="rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-accent hover:text-foreground"
+            >
+              How it works
+            </button>
+            <button
+              onClick={() => {
+                closeMenu();
+                scrollTo("backdrops");
+              }}
+              className="rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-accent hover:text-foreground"
+            >
+              Backdrops
+            </button>
+            <button
+              onClick={() => {
+                closeMenu();
+                scrollTo("pricing");
+              }}
+              className="rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-accent hover:text-foreground"
+            >
+              Pricing
+            </button>
+            <Link
+              to="/manage"
+              onClick={closeMenu}
+              className="rounded-xl px-3 py-2.5 transition-colors hover:bg-accent hover:text-foreground"
+            >
+              Manage booking
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
@@ -376,6 +432,12 @@ function Footer() {
             <p className="mt-4 max-w-sm text-sm leading-relaxed opacity-70">
               Self-photo studio in Bandung. Your moment, your frame — booked in 30 seconds.
             </p>
+            <Link
+              to="/manage"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-background/20 px-4 py-2 text-sm font-bold transition-colors hover:border-primary/60 hover:text-primary"
+            >
+              Manage booking
+            </Link>
           </div>
 
           <div>
