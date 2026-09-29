@@ -1,6 +1,6 @@
 import { rupiahFmt, usePackagePrices } from "@/lib/packages";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Instagram, MessageCircle } from "lucide-react";
+import { Camera, Instagram, MapPin, Menu, MessageCircle, Sparkles, X } from "lucide-react";
 import { STUDIO_WHATSAPP } from "@/lib/booking-actions";
 import { useState } from "react";
 import { HeroDecor, PhotoPrinter, Reveal, StepIcon, ThemeScene } from "@/components/landing/Illustrations";
