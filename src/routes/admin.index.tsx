@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Ban, Camera, Check, LogOut, RefreshCw, Trash2, UserX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,13 +6,7 @@ import { BRANCH_NAMES } from "@/components/SimpleShell";
 import { rupiahFmt } from "@/lib/packages";
 
 export const Route = createFileRoute("/admin/")({
-  ssr: false,
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/admin/login" });
-    const { data: isOwner } = await supabase.rpc("has_role", { _user_id: data.user.id, _role: "owner" });
-    if (!isOwner) throw redirect({ to: "/admin/login" });
-  },
+
   head: () => ({
     meta: [
       { title: "Owner Dashboard — Snapbox Studio" },
@@ -24,8 +18,39 @@ export const Route = createFileRoute("/admin/")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: AdminPage,
+  component: AdminGate,
 });
+
+// Client-side gate (data itself is protected in the database by owner-only functions and RLS).
+function AdminGate() {
+  const navigate = useNavigate();
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      const isOwner = data.user
+        ? (await supabase.rpc("has_role", { _user_id: data.user.id, _role: "owner" })).data
+        : false;
+      if (!alive) return;
+      if (isOwner) setOk(true);
+      else navigate({ to: "/admin/login", replace: true });
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [navigate]);
+  if (!ok)
+    return (
+      <div className="mx-auto max-w-6xl space-y-4 px-4 pt-24 sm:px-6" aria-busy="true" aria-label="Checking access">
+        <div className="sb-skeleton h-8 w-56" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="sb-skeleton h-28 rounded-3xl" />)}
+        </div>
+      </div>
+    );
+  return <AdminPage />;
+}
 
 const TZ = "Asia/Jakarta";
 const todayKey = () => new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(new Date());
@@ -66,6 +91,7 @@ function AdminPage() {
   const [bookings, setBookings] = useState<DayBooking[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -73,6 +99,7 @@ function AdminPage() {
       supabase.rpc("admin_day_bookings", { _day: todayKey() }),
       supabase.rpc("admin_stats"),
     ]);
+    setLoadError(!!(b.error || s.error));
     setBookings((b.data as DayBooking[] | null) ?? []);
     setStats((s.data as unknown as Stats | null) ?? null);
     setLoading(false);
@@ -126,6 +153,19 @@ function AdminPage() {
           </p>
         </div>
 
+        {loadError && (
+          <div role="alert" className="rounded-2xl border-2 border-destructive bg-card p-4 text-sm">
+            <p className="font-semibold text-destructive">Some dashboard data couldn't load.</p>
+            <p className="mt-1 text-muted-foreground">Check your connection and tap the refresh button at the top.</p>
+          </div>
+        )}
+        {!stats && loading ? (
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4" aria-busy="true" aria-label="Loading stats">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="sb-skeleton h-28 rounded-3xl" />
+            ))}
+          </section>
+        ) : (
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
           <Stat label="Today's revenue" value={rupiahFmt(stats?.today_revenue ?? 0)} />
           <Stat label="This week" value={rupiahFmt(stats?.week_revenue ?? 0)} />
@@ -137,6 +177,7 @@ function AdminPage() {
             accent
           />
         </section>
+        )}
 
         <section className="grid gap-6 lg:grid-cols-2">
           {(["dago", "buahbatu"] as const).map((br) => (
@@ -191,9 +232,16 @@ function BranchTimeline({
         <span className="text-xs font-semibold text-muted-foreground">{bookings.length} today</span>
       </div>
       {bookings.length === 0 ? (
-        <p className="mt-4 rounded-2xl bg-muted/60 px-4 py-6 text-center text-sm text-muted-foreground">
-          {loading ? "Loading…" : "No sessions booked today."}
-        </p>
+        loading ? (
+          <div className="mt-4 space-y-3" aria-busy="true" aria-label="Loading schedule">
+            <div className="sb-skeleton h-20 rounded-2xl" />
+            <div className="sb-skeleton h-20 rounded-2xl" />
+          </div>
+        ) : (
+          <p className="mt-4 rounded-2xl bg-muted/60 px-4 py-6 text-center text-sm text-muted-foreground">
+            No sessions booked today. Enjoy the quiet — new bookings will show up here.
+          </p>
+        )
       ) : (
         <ol className="mt-4 space-y-3 border-l-2 border-dashed border-border pl-4">
           {bookings.map((b) => (
@@ -234,6 +282,7 @@ function BranchTimeline({
 
 function HoursChart({ hours }: { hours: { hour: number; count: number }[] }) {
   const range = Array.from({ length: 11 }, (_, i) => 10 + i);
+  const empty = hours.length === 0;
   const counts = range.map((h) => hours.find((x) => x.hour === h)?.count ?? 0);
   const max = Math.max(1, ...counts);
   const peak = counts.indexOf(Math.max(...counts));
@@ -241,7 +290,8 @@ function HoursChart({ hours }: { hours: { hour: number; count: number }[] }) {
     <section className={card}>
       <h2 className="font-display text-lg font-bold">Busiest hours</h2>
       <p className="text-xs text-muted-foreground">Sessions by start hour · last 30 days + upcoming</p>
-      <div className="mt-5 flex h-44 items-end gap-1.5 sm:gap-3">
+      {empty && <p className="mt-4 rounded-2xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">No sessions yet — the chart fills in as bookings come in.</p>}
+      <div role="img" aria-label={`Bar chart of sessions per start hour. Busiest hour: ${range[peak] ?? 10}:00.`} className="mt-5 flex h-44 items-end gap-1.5 sm:gap-3">
         {range.map((h, i) => (
           <div key={h} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
             <span className="text-[10px] font-bold text-muted-foreground">{counts[i] || ""}</span>
@@ -417,6 +467,7 @@ function PriceEditor() {
       <h2 className="font-display text-lg font-bold">Package prices</h2>
       <p className="text-xs text-muted-foreground">Changes show right away on the home page and booking page. Existing bookings keep their price.</p>
       <div className="mt-4 space-y-3">
+        {pkgs.length === 0 && Array.from({ length: 3 }).map((_, i) => <div key={i} className="sb-skeleton h-24 rounded-2xl" />)}
         {pkgs.map((p) => (
           <div key={p.id} className="rounded-2xl border border-border bg-background p-3.5">
             <div className="flex items-baseline justify-between">
@@ -429,6 +480,7 @@ function PriceEditor() {
               <div className="flex min-w-0 flex-1 items-center rounded-xl border border-border bg-card px-3 focus-within:border-primary">
                 <span className="text-sm text-muted-foreground">Rp</span>
                 <input
+                  aria-label={`${p.name} price in rupiah`}
                   inputMode="numeric"
                   value={draft[p.id] ?? ""}
                   onChange={(e) => setDraft((d) => ({ ...d, [p.id]: e.target.value.replace(/\D/g, "") }))}

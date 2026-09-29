@@ -59,6 +59,20 @@ function BookButton({
   );
 }
 
+function DemoBanner() {
+  return (
+    <div role="note" className="bg-foreground px-4 py-2 text-center text-xs font-medium text-background sm:text-sm">
+      <span className="mr-1.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold tracking-widest text-primary-foreground uppercase">
+        Demo mode
+      </span>
+      Portfolio demo: payments and WhatsApp are simulated.{" "}
+      <Link to="/admin/login" className="font-bold underline underline-offset-4 hover:text-primary-foreground">
+        Try the owner dashboard →
+      </Link>
+    </div>
+  );
+}
+
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
@@ -484,6 +498,7 @@ function Footer() {
 function Index() {
   return (
     <div className="min-h-screen bg-background font-sans text-foreground antialiased">
+      <DemoBanner />
       <Navbar />
       <main>
         <Hero />

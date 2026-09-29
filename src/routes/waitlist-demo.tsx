@@ -24,9 +24,13 @@ type Offer = { token: string; branch_id: string; slot_start: string; expires_at:
 function WaitlistDemo() {
   const [offers, setOffers] = useState<Offer[] | null>(null);
   const [now, setNow] = useState(Date.now());
+  const [failed, setFailed] = useState(false);
 
   const load = () =>
-    supabase.rpc("list_active_offers").then(({ data }) => setOffers(data ?? []));
+    supabase.rpc("list_active_offers").then(({ data, error }) => {
+      setFailed(!!error);
+      if (!error) setOffers(data ?? []);
+    });
 
   useEffect(() => {
     load();
@@ -55,8 +59,16 @@ function WaitlistDemo() {
         </button>
       </div>
       <div className="mt-4 space-y-3">
-        {offers === null ? (
-          <p className="text-muted-foreground">Loading…</p>
+        {failed ? (
+          <div role="alert" className="rounded-3xl border-2 border-destructive bg-card p-5 text-sm">
+            <p className="font-semibold text-destructive">We couldn't load the waitlist offers.</p>
+            <p className="mt-1 text-muted-foreground">Check your connection, then tap Refresh.</p>
+          </div>
+        ) : offers === null ? (
+          <div aria-busy="true" aria-label="Loading offers" className="space-y-3">
+            <div className="sb-skeleton h-28 rounded-3xl" />
+            <div className="sb-skeleton h-28 rounded-3xl" />
+          </div>
         ) : offers.length === 0 ? (
           <p className="rounded-3xl border-2 border-border bg-card p-6 text-center text-muted-foreground">
             No active offers right now. Join a waitlist on a booked slot, then cancel that booking to see one appear.

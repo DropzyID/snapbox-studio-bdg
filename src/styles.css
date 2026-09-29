@@ -71,7 +71,7 @@
   --card-foreground: oklch(0.228 0.038 282.9);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.228 0.038 282.9);
-  --primary: oklch(0.673 0.233 1.9);
+  --primary: oklch(0.63 0.235 1.9); /* slightly deepened hot pink for WCAG AA text contrast */
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.555 0.243 268.8);
   --secondary-foreground: oklch(1 0 0);
@@ -83,7 +83,7 @@
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(0.93 0.015 71.3);
   --input: oklch(0.93 0.015 71.3);
-  --ring: oklch(0.673 0.233 1.9);
+  --ring: oklch(0.555 0.243 268.8);
   --pink-soft: oklch(0.938 0.037 349.8);
   --blue-soft: oklch(0.934 0.032 276);
   --chart-1: oklch(0.673 0.233 1.9);
@@ -144,7 +144,52 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    overflow-x: hidden;
   }
+
+  /* Visible keyboard focus everywhere */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: 0.75rem;
+  }
+
+  /* Subtle press feedback on every button / button-like link */
+  :where(button, a[class*="rounded-full"]):not(:disabled) {
+    transition-property: transform, box-shadow, background-color, border-color, color, opacity;
+    transition-duration: 160ms;
+    transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  :where(button, a[class*="rounded-full"]):not(:disabled):active {
+    transform: translateY(1px) scale(0.97);
+  }
+}
+
+/* Page transition + micro-animations (CSS only) */
+@keyframes sb-page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sb-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+@keyframes sb-shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+.sb-page { animation: sb-page-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.sb-pop { animation: sb-pop 260ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+.sb-skeleton {
+  border-radius: 0.75rem;
+  background: linear-gradient(90deg, var(--color-muted) 25%, oklch(0.985 0.008 71.3) 50%, var(--color-muted) 75%);
+  background-size: 200% 100%;
+  animation: sb-shimmer 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sb-page, .sb-pop, .sb-skeleton { animation: none; }
+  :where(button, a):active { transform: none !important; }
 }
 
 /* Backdrop placeholder gradients (no real photos yet) */

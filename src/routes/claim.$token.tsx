@@ -25,10 +25,17 @@ function ClaimPage() {
   const { token } = Route.useParams();
   const [offer, setOffer] = useState<Offer | null | undefined>(undefined);
   const [now, setNow] = useState(Date.now());
+  const [failed, setFailed] = useState(false);
 
-  useEffect(() => {
-    supabase.rpc("get_waitlist_offer", { _token: token }).then(({ data }) => setOffer(data?.[0] ?? null));
-  }, [token]);
+  const load = () => {
+    setFailed(false);
+    setOffer(undefined);
+    supabase.rpc("get_waitlist_offer", { _token: token }).then(({ data, error }) => {
+      if (error) return setFailed(true);
+      setOffer(data?.[0] ?? null);
+    });
+  };
+  useEffect(load, [token]);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 250);
@@ -43,8 +50,21 @@ function ClaimPage() {
   return (
     <SimpleShell>
       <div className="rounded-3xl border-2 border-foreground bg-card p-6 text-center shadow-pop sm:p-8">
-        {offer === undefined ? (
-          <p className="py-10 text-muted-foreground">Loading your offer…</p>
+        {failed ? (
+          <div role="alert" className="py-6">
+            <h1 className="font-display text-xl font-bold">We couldn't load this offer</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Check your connection and try again.</p>
+            <button type="button" onClick={load} className="mt-5 rounded-full border-2 border-foreground px-5 py-2 text-sm font-bold">
+              Try again
+            </button>
+          </div>
+        ) : offer === undefined ? (
+          <div aria-busy="true" aria-label="Loading your offer" className="space-y-3 py-4">
+            <div className="sb-skeleton mx-auto h-7 w-2/3" />
+            <div className="sb-skeleton mx-auto h-4 w-1/2" />
+            <div className="sb-skeleton mx-auto h-16 w-40" />
+            <div className="sb-skeleton mx-auto h-12 w-48 rounded-full" />
+          </div>
         ) : !live ? (
           <>
             <h1 className="font-display text-2xl font-bold">This offer is no longer available</h1>

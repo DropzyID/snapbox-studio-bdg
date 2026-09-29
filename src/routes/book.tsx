@@ -124,6 +124,7 @@ function BookPage() {
   const [payment, setPayment] = useState<PaymentSession | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [slotsStatus, setSlotsStatus] = useState<"loading" | "error" | "ok">("loading");
   const [booked, setBooked] = useState<Range[]>([]);
   const [slotsVersion, setSlotsVersion] = useState(0);
   const [now, setNow] = useState<Date | null>(null);
@@ -160,13 +161,19 @@ function BookPage() {
   useEffect(() => {
     if (!branch || !now) return;
     let cancelled = false;
+    setSlotsStatus("loading");
     const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
     const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 16);
     supabase
       .rpc("process_waitlist_offers")
       .then(() => supabase.rpc("get_booked_slots", { _branch_id: branch, _from: from.toISOString(), _to: to.toISOString() }))
       .then(({ data, error }) => {
-        if (cancelled || error) return;
+        if (cancelled) return;
+        if (error) {
+          setSlotsStatus("error");
+          return;
+        }
+        setSlotsStatus("ok");
         const held = claim && claim.branch === branch ? claim.start : null;
         setBooked(
           (data ?? [])
@@ -567,6 +574,27 @@ function BookPage() {
                     <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">Choose a date first to see open slots.</p>
                   ) : (
                     <>
+                    {slotsStatus === "loading" ? (
+                      <div className="grid grid-cols-4 gap-2 sm:grid-cols-6" aria-busy="true" aria-label="Loading available times">
+                        {Array.from({ length: 12 }).map((_, i) => (
+                          <div key={i} className="sb-skeleton h-10" />
+                        ))}
+                      </div>
+                    ) : slotsStatus === "error" ? (
+                      <div role="alert" className="rounded-2xl border-2 border-destructive bg-card p-4 text-sm">
+                        <p className="font-semibold text-destructive">We couldn't load the available times.</p>
+                        <p className="mt-1 text-muted-foreground">Check your connection and try again.</p>
+                        <button type="button" onClick={() => setSlotsVersion((v) => v + 1)} className="mt-3 rounded-full border-2 border-foreground px-4 py-1.5 text-sm font-bold">
+                          Try again
+                        </button>
+                      </div>
+                    ) : visibleTimes.every((t) => slotDisabled(t)) ? (
+                      <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
+                        This day is fully booked. Try another date, or join the waitlist on a booked time below.
+                      </p>
+                    ) : null}
+                    {slotsStatus === "ok" && (
+                    <>
                       <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                         {visibleTimes.map((t) => {
                           const disabled = slotDisabled(t);
@@ -578,15 +606,17 @@ function BookPage() {
                               <button
                                 type="button"
                                 disabled={disabled}
+                                aria-pressed={active}
+                                aria-label={disabled ? `${t}, unavailable` : `${t}${active ? ", selected" : ""}`}
                                 onClick={() => {
                                   setTime(t);
                                   setErrors((e) => ({ ...e, time: undefined }));
                                 }}
                                 className={`rounded-xl border-2 py-2 text-sm font-bold transition-all ${
                                   disabled
-                                    ? "cursor-not-allowed border-dashed border-border bg-muted text-muted-foreground/60 line-through"
+                                    ? "cursor-not-allowed border-dashed border-border bg-muted text-muted-foreground line-through"
                                     : active
-                                      ? "border-foreground bg-secondary text-secondary-foreground shadow-pop-sm"
+                                      ? "sb-pop border-foreground bg-secondary text-secondary-foreground shadow-pop-sm"
                                       : "border-border bg-card hover:border-foreground/40"
                                 }`}
                               >
@@ -618,6 +648,8 @@ function BookPage() {
                           label={`${dateLabel(date)}, ${waitTime ?? ""}`}
                         />
                       )}
+                    </>
+                    )}
                     </>
                   )}
                   <FieldError msg={errors.time} />
