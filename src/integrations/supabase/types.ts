@@ -149,6 +149,27 @@ export type Database = {
         }
         Relationships: []
       }
+      lookup_attempts: {
+        Row: {
+          booking_code: string
+          client_key: string
+          created_at: string
+          id: number
+        }
+        Insert: {
+          booking_code: string
+          client_key: string
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          booking_code?: string
+          client_key?: string
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       packages: {
         Row: {
           duration_minutes: number
@@ -325,6 +346,10 @@ export type Database = {
         Returns: boolean
       }
       admin_stats: { Args: never; Returns: Json }
+      assert_lookup_allowed: {
+        Args: { _booking_code: string }
+        Returns: undefined
+      }
       cancel_my_booking: {
         Args: { _booking_code: string; _whatsapp: string }
         Returns: boolean
@@ -408,6 +433,7 @@ export type Database = {
         Returns: undefined
       }
       process_waitlist_offers: { Args: never; Returns: undefined }
+      request_client_key: { Args: never; Returns: string }
       reschedule_my_booking: {
         Args: { _booking_code: string; _new_start: string; _whatsapp: string }
         Returns: boolean

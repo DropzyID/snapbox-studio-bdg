@@ -71,6 +71,14 @@ function ManagePage() {
       setError("Enter both your booking code and WhatsApp number.");
       return;
     }
+    if (!/^SB-[A-Z0-9]{5}$/.test(code.trim().toUpperCase())) {
+      setError("Booking codes look like SB-4X7K2. Please check yours and try again.");
+      return;
+    }
+    if (!/^(\+62|62|0)8\d{7,11}$/.test(wa.replace(/[\s\-().]/g, ""))) {
+      setError("That WhatsApp number doesn't look right. Use the format 0812xxxxxxx.");
+      return;
+    }
     setBusy(true);
     if (!quiet) {
       setError(null);
@@ -79,6 +87,11 @@ function ManagePage() {
     const { data, error: e } = await supabase.rpc("find_my_booking", { _booking_code: code, _whatsapp: wa });
     setBusy(false);
     const row = (data as Booking[] | null)?.[0];
+    if (e?.message.includes("rate_limited")) {
+      setBooking(null);
+      setError("Too many attempts. For your security, please wait 15 minutes before trying again.");
+      return;
+    }
     if (e || !row) {
       setBooking(null);
       setError("We couldn't find a booking with that code and WhatsApp number. Double-check both and try again.");
@@ -93,7 +106,9 @@ function ManagePage() {
       ? "Your session starts in less than 2 hours, so changes are no longer possible."
       : msg.includes("slot_taken")
         ? "Sorry, this slot was just taken. Please pick another time."
-        : msg.includes("not_changeable")
+        : msg.includes("rate_limited")
+          ? "Too many attempts. Please wait 15 minutes and try again."
+          : msg.includes("not_changeable")
           ? "This booking can't be changed anymore."
           : "Something went wrong. Please try again.";
 
