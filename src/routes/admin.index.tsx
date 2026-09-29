@@ -111,7 +111,7 @@ function AdminPage() {
             <button onClick={() => void load()} aria-label="Refresh" className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card">
               <RefreshCw className={loading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
             </button>
-            <button onClick={signOut} className="flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold">
+            <button onClick={signOut} className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-card px-3 py-2 text-sm font-semibold">
               <LogOut className="h-4 w-4" /> Sign out
             </button>
           </div>

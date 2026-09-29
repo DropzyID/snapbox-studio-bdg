@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Owner access = user_roles 'owner' checked via has_role in SECURITY DEFINER admin_* RPCs and RLS; why: route gate alone doesn't protect data.
