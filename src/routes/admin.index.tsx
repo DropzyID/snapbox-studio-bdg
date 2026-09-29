@@ -442,6 +442,7 @@ function PriceEditor() {
       <h2 className="font-display text-lg font-bold">Package prices</h2>
       <p className="text-xs text-muted-foreground">Changes show right away on the home page and booking page. Existing bookings keep their price.</p>
       <div className="mt-4 space-y-3">
+        {pkgs.length === 0 && Array.from({ length: 3 }).map((_, i) => <div key={i} className="sb-skeleton h-24 rounded-2xl" />)}
         {pkgs.map((p) => (
           <div key={p.id} className="rounded-2xl border border-border bg-background p-3.5">
             <div className="flex items-baseline justify-between">
@@ -454,6 +455,7 @@ function PriceEditor() {
               <div className="flex min-w-0 flex-1 items-center rounded-xl border border-border bg-card px-3 focus-within:border-primary">
                 <span className="text-sm text-muted-foreground">Rp</span>
                 <input
+                  aria-label={`${p.name} price in rupiah`}
                   inputMode="numeric"
                   value={draft[p.id] ?? ""}
                   onChange={(e) => setDraft((d) => ({ ...d, [p.id]: e.target.value.replace(/\D/g, "") }))}
