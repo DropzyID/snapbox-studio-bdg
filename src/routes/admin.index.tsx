@@ -66,6 +66,7 @@ function AdminPage() {
   const [bookings, setBookings] = useState<DayBooking[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -73,6 +74,7 @@ function AdminPage() {
       supabase.rpc("admin_day_bookings", { _day: todayKey() }),
       supabase.rpc("admin_stats"),
     ]);
+    setLoadError(!!(b.error || s.error));
     setBookings((b.data as DayBooking[] | null) ?? []);
     setStats((s.data as unknown as Stats | null) ?? null);
     setLoading(false);
@@ -126,6 +128,19 @@ function AdminPage() {
           </p>
         </div>
 
+        {loadError && (
+          <div role="alert" className="rounded-2xl border-2 border-destructive bg-card p-4 text-sm">
+            <p className="font-semibold text-destructive">Some dashboard data couldn't load.</p>
+            <p className="mt-1 text-muted-foreground">Check your connection and tap the refresh button at the top.</p>
+          </div>
+        )}
+        {!stats && loading ? (
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4" aria-busy="true" aria-label="Loading stats">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="sb-skeleton h-28 rounded-3xl" />
+            ))}
+          </section>
+        ) : (
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
           <Stat label="Today's revenue" value={rupiahFmt(stats?.today_revenue ?? 0)} />
           <Stat label="This week" value={rupiahFmt(stats?.week_revenue ?? 0)} />
@@ -137,6 +152,7 @@ function AdminPage() {
             accent
           />
         </section>
+        )}
 
         <section className="grid gap-6 lg:grid-cols-2">
           {(["dago", "buahbatu"] as const).map((br) => (
@@ -191,9 +207,16 @@ function BranchTimeline({
         <span className="text-xs font-semibold text-muted-foreground">{bookings.length} today</span>
       </div>
       {bookings.length === 0 ? (
-        <p className="mt-4 rounded-2xl bg-muted/60 px-4 py-6 text-center text-sm text-muted-foreground">
-          {loading ? "Loading…" : "No sessions booked today."}
-        </p>
+        loading ? (
+          <div className="mt-4 space-y-3" aria-busy="true" aria-label="Loading schedule">
+            <div className="sb-skeleton h-20 rounded-2xl" />
+            <div className="sb-skeleton h-20 rounded-2xl" />
+          </div>
+        ) : (
+          <p className="mt-4 rounded-2xl bg-muted/60 px-4 py-6 text-center text-sm text-muted-foreground">
+            No sessions booked today. Enjoy the quiet — new bookings will show up here.
+          </p>
+        )
       ) : (
         <ol className="mt-4 space-y-3 border-l-2 border-dashed border-border pl-4">
           {bookings.map((b) => (
@@ -234,6 +257,7 @@ function BranchTimeline({
 
 function HoursChart({ hours }: { hours: { hour: number; count: number }[] }) {
   const range = Array.from({ length: 11 }, (_, i) => 10 + i);
+  const empty = hours.length === 0;
   const counts = range.map((h) => hours.find((x) => x.hour === h)?.count ?? 0);
   const max = Math.max(1, ...counts);
   const peak = counts.indexOf(Math.max(...counts));
@@ -241,7 +265,8 @@ function HoursChart({ hours }: { hours: { hour: number; count: number }[] }) {
     <section className={card}>
       <h2 className="font-display text-lg font-bold">Busiest hours</h2>
       <p className="text-xs text-muted-foreground">Sessions by start hour · last 30 days + upcoming</p>
-      <div className="mt-5 flex h-44 items-end gap-1.5 sm:gap-3">
+      {empty && <p className="mt-4 rounded-2xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">No sessions yet — the chart fills in as bookings come in.</p>}
+      <div role="img" aria-label={`Bar chart of sessions per start hour. Busiest hour: ${range[peak] ?? 10}:00.`} className="mt-5 flex h-44 items-end gap-1.5 sm:gap-3">
         {range.map((h, i) => (
           <div key={h} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
             <span className="text-[10px] font-bold text-muted-foreground">{counts[i] || ""}</span>
