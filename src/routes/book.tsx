@@ -439,6 +439,9 @@ function BookPage() {
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <section className="min-w-0 rounded-3xl border-2 border-foreground bg-card p-5 shadow-pop sm:p-7">
+            {claimNote && (
+              <p className="mb-5 rounded-2xl border-2 border-dashed border-secondary bg-muted p-3 text-sm font-medium">{claimNote}</p>
+            )}
             {step === 0 && (
               <div>
                 <StepTitle>Which branch?</StepTitle>
