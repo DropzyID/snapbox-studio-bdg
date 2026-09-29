@@ -856,6 +856,8 @@ function NavButtons({
   confirm,
   compact,
   busy,
+  canNext = true,
+  hint,
 }: {
   step: number;
   back: () => void;
@@ -863,8 +865,11 @@ function NavButtons({
   confirm: () => void;
   compact?: boolean | undefined;
   busy?: boolean | undefined;
+  canNext?: boolean | undefined;
+  hint?: string | null | undefined;
 }) {
   const last = step === STEPS.length - 1;
+  const nextDisabled = !!busy || (!last && !canNext);
   return (
     <>
       {step > 0 ? (
@@ -880,17 +885,25 @@ function NavButtons({
       ) : (
         !compact && <span />
       )}
-      <button
-        type="button"
-        onClick={last ? confirm : next}
-        disabled={busy}
-        className={`shadow-pop-sm inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition-transform hover:-translate-y-0.5 ${
-          last ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"
-        }`}
-      >
-        {last ? (busy ? "Booking…" : "Confirm booking") : "Next"}
-        {last ? <Check className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
-      </button>
+      <span className={compact ? "contents" : "flex flex-col items-end gap-1.5"}>
+        <button
+          type="button"
+          onClick={last ? confirm : next}
+          disabled={nextDisabled}
+          aria-disabled={nextDisabled}
+          className={`shadow-pop-sm inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition-transform ${
+            nextDisabled
+              ? "cursor-not-allowed opacity-45"
+              : "hover:-translate-y-0.5"
+          } ${last ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"}`}
+        >
+          {last ? (busy ? "Booking…" : "Confirm booking") : "Next"}
+          {last ? <Check className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+        </button>
+        {!compact && hint && !last && (
+          <span className="text-xs font-medium text-muted-foreground">{hint}</span>
+        )}
+      </span>
     </>
   );
 }
