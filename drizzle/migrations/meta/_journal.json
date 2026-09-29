@@ -50,6 +50,13 @@
       "when": 1790654402075,
       "tag": "0006_manage_rate_limit",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790655139782,
+      "tag": "0007_most_booked_theme",
+      "breakpoints": true
     }
   ]
 }
