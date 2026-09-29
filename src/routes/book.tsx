@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, ArrowRight, CalendarPlus, Camera, Check, MapPin, MessageCircle, PartyPopper, Settings2, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgePercent, CalendarPlus, Camera, Check, MapPin, MessageCircle, PartyPopper, RefreshCcw, Settings2, Star } from "lucide-react";
+import { ThemeScene } from "@/components/landing/Illustrations";
 import { downloadIcs, whatsappLink } from "@/lib/booking-actions";
 import { DepositPayment } from "@/components/DepositPayment";
 import { WaitlistDialog } from "@/components/WaitlistDialog";
@@ -132,8 +133,16 @@ function BookPage() {
   const [claim, setClaim] = useState<{ token: string; branch: BranchId; date: string; time: string; start: number } | null>(null);
   const [claimNote, setClaimNote] = useState<string | null>(null);
   const [waitTime, setWaitTime] = useState<string | null>(null);
+  const [mostBooked, setMostBooked] = useState<BackdropId | null>(null);
 
   useEffect(() => setNow(new Date()), []);
+
+  // "Most booked" badge follows real booking counts (null on a tie or no data)
+  useEffect(() => {
+    supabase.rpc("most_booked_theme").then(({ data }) => {
+      setMostBooked(data === "y2k" || data === "vintage" || data === "minimal" ? data : null);
+    });
+  }, []);
 
   // Arriving from a waitlist claim link: pre-select branch, date and time
   useEffect(() => {
@@ -511,18 +520,18 @@ function BookPage() {
                           setBackdrop(b.id);
                           setErrors((e) => ({ ...e, backdrop: undefined }));
                         }}
-                        className={`${cardBase} relative p-2 ${
+                        className={`${cardBase} group relative p-2 ${
                           backdrop === b.id
                             ? "border-primary bg-accent shadow-pop-sm -translate-y-0.5"
                             : "border-border bg-card hover:border-foreground/40"
                         }`}
                       >
-                        {b.id === "y2k" && (
+                        {b.id === mostBooked && (
                           <span className="absolute -top-2.5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
                             Most booked
                           </span>
                         )}
-                        <div className={`${b.cls} aspect-[3/4] rounded-xl`} />
+                        <ThemeScene theme={b.id} className="aspect-[3/4] rounded-xl" />
                         <div className="mt-2 text-center font-display text-sm font-bold">{b.name}</div>
                       </button>
                     ))}
