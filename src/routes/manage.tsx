@@ -442,7 +442,7 @@ function Reschedule({
         ) : slotsStatus === "error" ? (
           <div role="alert" className="rounded-2xl border-2 border-destructive bg-card p-4 text-sm">
             <p className="font-semibold text-destructive">We couldn't load the available times.</p>
-            <button type="button" onClick={() => setVersion((v) => v + 1)} className="mt-3 rounded-full border-2 border-foreground px-4 py-1.5 text-sm font-bold">
+            <button type="button" onClick={() => setVersion((v) => v + 1)} className="mt-3 min-h-11 rounded-full border-2 border-foreground px-4 py-1.5 text-sm font-bold">
               Try again
             </button>
           </div>
@@ -462,7 +462,7 @@ function Reschedule({
                   aria-pressed={act}
                   aria-label={dis ? `${t}, unavailable` : t}
                   onClick={() => setTime(t)}
-                  className={`rounded-xl border-2 py-2 text-sm font-bold transition-all ${
+                  className={`min-h-11 rounded-xl border-2 py-2 text-sm font-bold transition-all ${
                     dis
                       ? "cursor-not-allowed border-dashed border-border bg-muted text-muted-foreground line-through"
                       : act
