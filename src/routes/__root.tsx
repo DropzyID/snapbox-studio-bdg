@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
+  useRouterState,
   Link,
   createRootRouteWithContext,
   useRouter,
@@ -133,7 +134,16 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <PageTransition />
     </QueryClientProvider>
+  );
+}
+
+function PageTransition() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  return (
+    <div key={pathname} className="sb-page">
+      <Outlet />
+    </div>
   );
 }
