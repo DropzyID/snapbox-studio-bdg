@@ -573,7 +573,8 @@ function BookPage() {
                   {!date ? (
                     <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">Choose a date first to see open slots.</p>
                   ) : (
-                    slotsStatus === "loading" ? (
+                    <>
+                    {slotsStatus === "loading" ? (
                       <div className="grid grid-cols-4 gap-2 sm:grid-cols-6" aria-busy="true" aria-label="Loading available times">
                         {Array.from({ length: 12 }).map((_, i) => (
                           <div key={i} className="sb-skeleton h-10" />
@@ -647,6 +648,8 @@ function BookPage() {
                           label={`${dateLabel(date)}, ${waitTime ?? ""}`}
                         />
                       )}
+                    </>
+                    )}
                     </>
                   )}
                   <FieldError msg={errors.time} />
