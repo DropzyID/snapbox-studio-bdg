@@ -190,6 +190,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cancel_my_booking: {
+        Args: { _booking_code: string; _whatsapp: string }
+        Returns: boolean
+      }
       create_booking: {
         Args: {
           _branch_id: string
@@ -206,12 +210,32 @@ export type Database = {
         Args: { _booking_code: string }
         Returns: boolean
       }
+      find_my_booking: {
+        Args: { _booking_code: string; _whatsapp: string }
+        Returns: {
+          booking_code: string
+          branch_id: string
+          customer_name: string
+          deposit_status: Database["public"]["Enums"]["deposit_status"]
+          package_id: string
+          people_count: number
+          slot_end: string
+          slot_start: string
+          status: Database["public"]["Enums"]["booking_status"]
+          theme_id: string
+        }[]
+      }
       get_booked_slots: {
         Args: { _branch_id: string; _from: string; _to: string }
         Returns: {
           slot_end: string
           slot_start: string
         }[]
+      }
+      normalize_wa: { Args: { _w: string }; Returns: string }
+      reschedule_my_booking: {
+        Args: { _booking_code: string; _new_start: string; _whatsapp: string }
+        Returns: boolean
       }
       simulate_deposit_paid: {
         Args: { _booking_code: string }

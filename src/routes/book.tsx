@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, ArrowRight, Camera, Check, MapPin, PartyPopper, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarPlus, Camera, Check, MapPin, MessageCircle, PartyPopper, Settings2, Star } from "lucide-react";
+import { downloadIcs, whatsappLink } from "@/lib/booking-actions";
 import { DepositPayment } from "@/components/DepositPayment";
 import { createPaymentSession, depositFor, type PaymentSession } from "@/lib/payment";
 
@@ -315,6 +316,40 @@ function BookPage() {
               <p className="mt-1 font-display text-lg font-bold">{rupiah(amounts.balance)}</p>
             </div>
           </div>
+          {bookingCode && date && time && selectedPkg && selectedBranch && (() => {
+            const info = {
+              code: bookingCode,
+              packageName: selectedPkg.name,
+              branchName: selectedBranch.name,
+              start: slotStart(date, time),
+              minutes: selectedPkg.minutes,
+            };
+            return (
+              <div className="mt-6 grid gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => downloadIcs(info)}
+                  className="shadow-pop-sm inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-foreground bg-card px-5 py-3 font-bold"
+                >
+                  <CalendarPlus className="h-4 w-4" /> Add to calendar
+                </button>
+                <a
+                  href={whatsappLink(info)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shadow-pop-sm inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-foreground bg-primary px-5 py-3 font-bold text-primary-foreground"
+                >
+                  <MessageCircle className="h-4 w-4" /> Chat us on WhatsApp
+                </a>
+                <Link
+                  to="/manage"
+                  className="shadow-pop-sm inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-foreground bg-card px-5 py-3 font-bold"
+                >
+                  <Settings2 className="h-4 w-4" /> Manage booking
+                </Link>
+              </div>
+            );
+          })()}
           <Link
             to="/"
             className="shadow-pop mt-6 inline-flex rounded-2xl bg-secondary px-6 py-3 font-bold text-secondary-foreground"
