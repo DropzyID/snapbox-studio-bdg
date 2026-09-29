@@ -202,12 +202,20 @@ export type Database = {
         }
         Returns: string
       }
+      expire_unpaid_booking: {
+        Args: { _booking_code: string }
+        Returns: boolean
+      }
       get_booked_slots: {
         Args: { _branch_id: string; _from: string; _to: string }
         Returns: {
           slot_end: string
           slot_start: string
         }[]
+      }
+      simulate_deposit_paid: {
+        Args: { _booking_code: string }
+        Returns: boolean
       }
     }
     Enums: {
