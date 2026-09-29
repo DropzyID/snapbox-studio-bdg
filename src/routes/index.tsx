@@ -1,3 +1,4 @@
+import { rupiahFmt, usePackagePrices } from "@/lib/packages";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Camera, MapPin, Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
@@ -319,6 +320,7 @@ function Backdrops() {
 
 const plans = [
   {
+    id: "solo",
     name: "Solo",
     price: "Rp 60.000",
     duration: "15 min",
@@ -327,6 +329,7 @@ const plans = [
     featured: false,
   },
   {
+    id: "duo",
     name: "Duo",
     price: "Rp 100.000",
     duration: "20 min",
@@ -335,6 +338,7 @@ const plans = [
     featured: true,
   },
   {
+    id: "group",
     name: "Group",
     price: "Rp 180.000",
     duration: "30 min",
@@ -345,6 +349,7 @@ const plans = [
 ];
 
 function Pricing() {
+  const livePrices = usePackagePrices();
   return (
     <section id="pricing" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 sm:py-24">
       <div className="text-center">
@@ -372,7 +377,7 @@ function Pricing() {
             <h3 className="font-display text-lg font-bold sm:text-xl">{plan.name}</h3>
             <div className="mt-4">
               <div className="flex items-baseline gap-2">
-                <span className="font-display text-2xl font-bold sm:text-3xl">{plan.price}</span>
+                <span className="font-display text-2xl font-bold sm:text-3xl">{livePrices[plan.id] ? rupiahFmt(livePrices[plan.id] ?? 0) : plan.price}</span>
                 <span className={plan.featured ? "text-sm opacity-80" : "text-sm text-muted-foreground"}>
                   / {plan.duration}
                 </span>

@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as ManageRouteImport } from './routes/manage'
 import { Route as WaitlistDemoRouteImport } from './routes/waitlist-demo'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as ClaimTokenRouteImport } from './routes/claim.$token'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +37,16 @@ const WaitlistDemoRoute = WaitlistDemoRouteImport.update({
   path: '/waitlist-demo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClaimTokenRoute = ClaimTokenRouteImport.update({
   id: '/claim/$token',
   path: '/claim/$token',
@@ -46,14 +58,18 @@ export interface FileRoutesByFullPath {
   '/book': typeof BookRoute
   '/manage': typeof ManageRoute
   '/waitlist-demo': typeof WaitlistDemoRoute
+  '/admin/login': typeof AdminLoginRoute
   '/claim/$token': typeof ClaimTokenRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/book': typeof BookRoute
   '/manage': typeof ManageRoute
   '/waitlist-demo': typeof WaitlistDemoRoute
+  '/admin/login': typeof AdminLoginRoute
   '/claim/$token': typeof ClaimTokenRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,15 +77,38 @@ export interface FileRoutesById {
   '/book': typeof BookRoute
   '/manage': typeof ManageRoute
   '/waitlist-demo': typeof WaitlistDemoRoute
+  '/admin/login': typeof AdminLoginRoute
   '/claim/$token': typeof ClaimTokenRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/book' | '/manage' | '/waitlist-demo' | '/claim/$token'
+  fullPaths:
+    | '/'
+    | '/book'
+    | '/manage'
+    | '/waitlist-demo'
+    | '/admin/login'
+    | '/claim/$token'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/book' | '/manage' | '/waitlist-demo' | '/claim/$token'
+  to:
+    | '/'
+    | '/book'
+    | '/manage'
+    | '/waitlist-demo'
+    | '/admin/login'
+    | '/claim/$token'
+    | '/admin'
   id:
-    '__root__' | '/' | '/book' | '/manage' | '/waitlist-demo' | '/claim/$token'
+    | '__root__'
+    | '/'
+    | '/book'
+    | '/manage'
+    | '/waitlist-demo'
+    | '/admin/login'
+    | '/claim/$token'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,7 +116,9 @@ export interface RootRouteChildren {
   BookRoute: typeof BookRoute
   ManageRoute: typeof ManageRoute
   WaitlistDemoRoute: typeof WaitlistDemoRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   ClaimTokenRoute: typeof ClaimTokenRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -110,6 +151,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WaitlistDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/claim/$token': {
       id: '/claim/$token'
       path: '/claim/$token'
@@ -125,7 +180,9 @@ const rootRouteChildren: RootRouteChildren = {
   BookRoute: BookRoute,
   ManageRoute: ManageRoute,
   WaitlistDemoRoute: WaitlistDemoRoute,
+  AdminLoginRoute: AdminLoginRoute,
   ClaimTokenRoute: ClaimTokenRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      blocked_slots: {
+        Row: {
+          branch_id: string
+          created_at: string
+          ends_at: string
+          id: string
+          reason: string
+          starts_at: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          ends_at: string
+          id?: string
+          reason?: string
+          starts_at: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          ends_at?: string
+          id?: string
+          reason?: string
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocked_slots_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           booking_code: string
@@ -29,6 +64,7 @@ export type Database = {
           slot_start: string
           status: Database["public"]["Enums"]["booking_status"]
           theme_id: string
+          total_price: number | null
           whatsapp: string
         }
         Insert: {
@@ -45,6 +81,7 @@ export type Database = {
           slot_start: string
           status?: Database["public"]["Enums"]["booking_status"]
           theme_id: string
+          total_price?: number | null
           whatsapp: string
         }
         Update: {
@@ -61,6 +98,7 @@ export type Database = {
           slot_start?: string
           status?: Database["public"]["Enums"]["booking_status"]
           theme_id?: string
+          total_price?: number | null
           whatsapp?: string
         }
         Relationships: [
@@ -150,6 +188,24 @@ export type Database = {
           description?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -244,6 +300,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_day_bookings: {
+        Args: { _day: string }
+        Returns: {
+          booking_code: string
+          branch_id: string
+          customer_name: string
+          deposit_status: Database["public"]["Enums"]["deposit_status"]
+          id: string
+          package_id: string
+          people_count: number
+          recovered_via_waitlist: boolean
+          slot_end: string
+          slot_start: string
+          status: Database["public"]["Enums"]["booking_status"]
+          whatsapp: string
+        }[]
+      }
+      admin_set_booking_status: {
+        Args: {
+          _id: string
+          _status: Database["public"]["Enums"]["booking_status"]
+        }
+        Returns: boolean
+      }
+      admin_stats: { Args: never; Returns: Json }
       cancel_my_booking: {
         Args: { _booking_code: string; _whatsapp: string }
         Returns: boolean
@@ -296,6 +377,13 @@ export type Database = {
           status: string
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       join_waitlist: {
         Args: {
           _branch_id: string
@@ -330,6 +418,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "owner"
       booking_status:
         | "pending"
         | "confirmed"
@@ -464,6 +553,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["owner"],
       booking_status: [
         "pending",
         "confirmed",
