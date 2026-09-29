@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Camera, MapPin, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -35,14 +35,16 @@ const scrollTo = (id: string) => {
 function BookButton({
   label = "Book a session",
   variant = "primary",
+  pkg,
 }: {
   label?: string;
   variant?: "primary" | "secondary";
+  pkg?: "solo" | "duo" | "group";
 }) {
   return (
-    <button
-      type="button"
-      onClick={() => scrollTo("pricing")}
+    <Link
+      to="/book"
+      search={pkg ? { package: pkg } : {}}
       className={
         variant === "secondary"
           ? "shadow-pop inline-flex items-center gap-2 rounded-2xl bg-secondary px-6 py-3.5 text-sm font-bold tracking-wide text-secondary-foreground transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-pop-sm active:translate-y-0.5 active:shadow-none sm:text-base"
@@ -51,7 +53,7 @@ function BookButton({
     >
       <Camera className="h-4 w-4 shrink-0" aria-hidden />
       {label}
-    </button>
+    </Link>
   );
 }
 
@@ -79,13 +81,12 @@ function Navbar() {
               Pricing
             </button>
           </div>
-          <button
-            type="button"
-            onClick={() => scrollTo("pricing")}
+          <Link
+            to="/book"
             className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
           >
             Book
-          </button>
+          </Link>
         </div>
       </nav>
     </header>
@@ -332,6 +333,7 @@ function Pricing() {
               <BookButton
                 label={`Book ${plan.name}`}
                 variant={plan.featured ? "secondary" : "primary"}
+                pkg={plan.name.toLowerCase() as "solo" | "duo" | "group"}
               />
             </div>
           </article>
