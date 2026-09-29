@@ -251,7 +251,7 @@ function BookPage() {
           </ol>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <section className="min-w-0 rounded-3xl border-2 border-foreground bg-card p-5 shadow-pop sm:p-7">
             {step === 0 && (
               <div>
