@@ -9,3 +9,4 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 - Owner access = user_roles 'owner' checked via has_role in SECURITY DEFINER admin_* RPCs and RLS; why: route gate alone doesn't protect data.
+- Public booking access only via SECURITY DEFINER RPCs; bookings/waitlist_offers/lookup_attempts have no anon policies; booking row validation lives in a DB trigger; why: never expose customer PII and validate server-side regardless of client.
