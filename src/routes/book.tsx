@@ -153,15 +153,29 @@ function BookPage() {
   const selectedBranch = BRANCHES.find((b) => b.id === branch) ?? null;
   const selectedBackdrop = BACKDROPS.find((b) => b.id === backdrop) ?? null;
 
+  // Branches close at 21:00 — only offer slots whose session ends at or before closing
+  const CLOSE_MINUTES = 21 * 60;
+  const fitsBeforeClose = (t: string, minutes: number) => {
+    const [hh = 0, mm = 0] = t.split(":").map(Number);
+    return hh * 60 + mm + minutes <= CLOSE_MINUTES;
+  };
+  const visibleTimes = TIMES.filter((t) => fitsBeforeClose(t, selectedPkg?.minutes ?? 30));
+
   const choosePkg = (id: PackageId) => {
     setPkg(id);
     const p = PACKAGES.find((x) => x.id === id)!;
     setPeople((n) => Math.min(p.max, Math.max(p.min, n)));
+    setTime((t) => (t && !fitsBeforeClose(t, p.minutes) ? null : t));
     setErrors((e) => ({ ...e, pkg: undefined }));
   };
 
   const slotDisabled = (t: string) =>
-    !branch || !date || !now || isSlotTaken(booked, date, t, selectedPkg?.minutes ?? 30) || isPast(date, t, now);
+    !branch ||
+    !date ||
+    !now ||
+    !fitsBeforeClose(t, selectedPkg?.minutes ?? 30) ||
+    isSlotTaken(booked, date, t, selectedPkg?.minutes ?? 30) ||
+    isPast(date, t, now);
 
   function validate(s: number): Errors {
     const e: Errors = {};
