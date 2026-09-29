@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { ArrowLeft, ArrowRight, Camera, Check, MapPin, PartyPopper } from "lucide-react";
+import { ArrowLeft, ArrowRight, Camera, Check, MapPin, PartyPopper, Star } from "lucide-react";
 
 const searchSchema = z.object({
   package: z.enum(["solo", "duo", "group"]).optional().catch(undefined),
