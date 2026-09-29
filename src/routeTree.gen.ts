@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as ManageRouteImport } from './routes/manage'
+import { Route as WaitlistDemoRouteImport } from './routes/waitlist-demo'
+import { Route as ClaimTokenRouteImport } from './routes/claim.$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +30,54 @@ const ManageRoute = ManageRouteImport.update({
   path: '/manage',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WaitlistDemoRoute = WaitlistDemoRouteImport.update({
+  id: '/waitlist-demo',
+  path: '/waitlist-demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClaimTokenRoute = ClaimTokenRouteImport.update({
+  id: '/claim/$token',
+  path: '/claim/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/book': typeof BookRoute
   '/manage': typeof ManageRoute
+  '/waitlist-demo': typeof WaitlistDemoRoute
+  '/claim/$token': typeof ClaimTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/book': typeof BookRoute
   '/manage': typeof ManageRoute
+  '/waitlist-demo': typeof WaitlistDemoRoute
+  '/claim/$token': typeof ClaimTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/book': typeof BookRoute
   '/manage': typeof ManageRoute
+  '/waitlist-demo': typeof WaitlistDemoRoute
+  '/claim/$token': typeof ClaimTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/book' | '/manage'
+  fullPaths: '/' | '/book' | '/manage' | '/waitlist-demo' | '/claim/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/book' | '/manage'
-  id: '__root__' | '/' | '/book' | '/manage'
+  to: '/' | '/book' | '/manage' | '/waitlist-demo' | '/claim/$token'
+  id:
+    '__root__' | '/' | '/book' | '/manage' | '/waitlist-demo' | '/claim/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BookRoute: typeof BookRoute
   ManageRoute: typeof ManageRoute
+  WaitlistDemoRoute: typeof WaitlistDemoRoute
+  ClaimTokenRoute: typeof ClaimTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +103,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/waitlist-demo': {
+      id: '/waitlist-demo'
+      path: '/waitlist-demo'
+      fullPath: '/waitlist-demo'
+      preLoaderRoute: typeof WaitlistDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/claim/$token': {
+      id: '/claim/$token'
+      path: '/claim/$token'
+      fullPath: '/claim/$token'
+      preLoaderRoute: typeof ClaimTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +124,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookRoute: BookRoute,
   ManageRoute: ManageRoute,
+  WaitlistDemoRoute: WaitlistDemoRoute,
+  ClaimTokenRoute: ClaimTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

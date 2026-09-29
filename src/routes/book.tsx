@@ -5,10 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ArrowRight, CalendarPlus, Camera, Check, MapPin, MessageCircle, PartyPopper, Settings2, Star } from "lucide-react";
 import { downloadIcs, whatsappLink } from "@/lib/booking-actions";
 import { DepositPayment } from "@/components/DepositPayment";
+import { WaitlistDialog } from "@/components/WaitlistDialog";
 import { createPaymentSession, depositFor, type PaymentSession } from "@/lib/payment";
 
 const searchSchema = z.object({
   package: z.enum(["solo", "duo", "group"]).optional().catch(undefined),
+  claim: z.string().max(40).optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/book")({
@@ -125,7 +127,34 @@ function BookPage() {
   const [slotsVersion, setSlotsVersion] = useState(0);
   const [now, setNow] = useState<Date | null>(null);
 
+  const [claim, setClaim] = useState<{ token: string; branch: BranchId; date: string; time: string; start: number } | null>(null);
+  const [claimNote, setClaimNote] = useState<string | null>(null);
+  const [waitTime, setWaitTime] = useState<string | null>(null);
+
   useEffect(() => setNow(new Date()), []);
+
+  // Arriving from a waitlist claim link: pre-select branch, date and time
+  useEffect(() => {
+    const token = search.claim;
+    if (!token) return;
+    supabase.rpc("get_waitlist_offer", { _token: token }).then(({ data }) => {
+      const o = data?.[0];
+      if (!o || o.status !== "active" || new Date(o.expires_at).getTime() <= Date.now()) {
+        setClaimNote("This waitlist offer has expired or was already claimed. You can still pick any open slot.");
+        return;
+      }
+      const s = new Date(o.slot_start);
+      const d = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" }).format(s);
+      const t = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", hour12: false }).format(s);
+      const b = o.branch_id as BranchId;
+      setClaim({ token, branch: b, date: d, time: t, start: s.getTime() });
+      setBranch(b);
+      setDate(d);
+      setTime(t);
+      setClaimNote("Your waitlist slot is reserved — pick your package and backdrop to finish booking.");
+      setStep(1);
+    });
+  }, [search.claim]);
 
   useEffect(() => {
     if (!branch || !now) return;
@@ -133,17 +162,21 @@ function BookPage() {
     const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
     const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 16);
     supabase
-      .rpc("get_booked_slots", { _branch_id: branch, _from: from.toISOString(), _to: to.toISOString() })
+      .rpc("process_waitlist_offers")
+      .then(() => supabase.rpc("get_booked_slots", { _branch_id: branch, _from: from.toISOString(), _to: to.toISOString() }))
       .then(({ data, error }) => {
         if (cancelled || error) return;
+        const held = claim && claim.branch === branch ? claim.start : null;
         setBooked(
-          (data ?? []).map((r) => ({ start: new Date(r.slot_start).getTime(), end: new Date(r.slot_end).getTime() })),
+          (data ?? [])
+            .map((r) => ({ start: new Date(r.slot_start).getTime(), end: new Date(r.slot_end).getTime() }))
+            .filter((r) => !(held !== null && r.start === held && r.end - r.start === 30 * 60_000)),
         );
       });
     return () => {
       cancelled = true;
     };
-  }, [branch, now, slotsVersion]);
+  }, [branch, now, slotsVersion, claim]);
 
   const days = useMemo(() => {
     if (!now) return [];
@@ -231,6 +264,7 @@ function BookPage() {
     if (!branch || !pkg || !backdrop || !date || !time) return;
     setSubmitting(true);
     setSubmitError(null);
+    const useClaim = claim && claim.branch === branch && claim.date === date && claim.time === time;
     const { data, error } = await supabase.rpc("create_booking", {
       _branch_id: branch,
       _package_id: pkg,
@@ -239,10 +273,17 @@ function BookPage() {
       _whatsapp: whatsapp.replace(/[\s-]/g, ""),
       _people_count: people,
       _slot_start: slotStart(date, time).toISOString(),
+      ...(useClaim ? { _claim_token: claim.token } : {}),
     });
     setSubmitting(false);
     if (error) {
-      if (error.message.includes("slot_taken") || error.message.includes("invalid_slot")) {
+      if (error.message.includes("offer_expired")) {
+        setClaim(null);
+        setTime(null);
+        setSlotsVersion((v) => v + 1);
+        setErrors({ time: "Sorry, your waitlist offer expired. Please pick another time." });
+        setStep(2);
+      } else if (error.message.includes("slot_taken") || error.message.includes("invalid_slot")) {
         setTime(null);
         setSlotsVersion((v) => v + 1);
         setErrors({ time: "Sorry, this slot was just taken. Please pick another time." });
@@ -398,6 +439,9 @@ function BookPage() {
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <section className="min-w-0 rounded-3xl border-2 border-foreground bg-card p-5 shadow-pop sm:p-7">
+            {claimNote && (
+              <p className="mb-5 rounded-2xl border-2 border-dashed border-secondary bg-muted p-3 text-sm font-medium">{claimNote}</p>
+            )}
             {step === 0 && (
               <div>
                 <StepTitle>Which branch?</StepTitle>
@@ -524,29 +568,53 @@ function BookPage() {
                         {visibleTimes.map((t) => {
                           const disabled = slotDisabled(t);
                           const active = time === t;
+                          const canWait =
+                            disabled && !!now && !!date && !isPast(date, t, now) && isSlotTaken(booked, date, t, selectedPkg?.minutes ?? 30);
                           return (
-                            <button
-                              key={t}
-                              type="button"
-                              disabled={disabled}
-                              onClick={() => {
-                                setTime(t);
-                                setErrors((e) => ({ ...e, time: undefined }));
-                              }}
-                              className={`rounded-xl border-2 py-2 text-sm font-bold transition-all ${
-                                disabled
-                                  ? "cursor-not-allowed border-dashed border-border bg-muted text-muted-foreground/60 line-through"
-                                  : active
-                                    ? "border-foreground bg-secondary text-secondary-foreground shadow-pop-sm"
-                                    : "border-border bg-card hover:border-foreground/40"
-                              }`}
-                            >
-                              {t}
-                            </button>
+                            <div key={t} className="flex flex-col gap-1">
+                              <button
+                                type="button"
+                                disabled={disabled}
+                                onClick={() => {
+                                  setTime(t);
+                                  setErrors((e) => ({ ...e, time: undefined }));
+                                }}
+                                className={`rounded-xl border-2 py-2 text-sm font-bold transition-all ${
+                                  disabled
+                                    ? "cursor-not-allowed border-dashed border-border bg-muted text-muted-foreground/60 line-through"
+                                    : active
+                                      ? "border-foreground bg-secondary text-secondary-foreground shadow-pop-sm"
+                                      : "border-border bg-card hover:border-foreground/40"
+                                }`}
+                              >
+                                {t}
+                              </button>
+                              {canWait && (
+                                <button
+                                  type="button"
+                                  onClick={() => setWaitTime(t)}
+                                  className="rounded-full bg-accent px-1 py-0.5 text-[10px] font-bold leading-tight text-accent-foreground hover:bg-primary hover:text-primary-foreground"
+                                >
+                                  Join waitlist
+                                </button>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
-                      <p className="mt-3 text-xs text-muted-foreground">Crossed-out slots are already booked.</p>
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        Crossed-out slots are already booked — tap "Join waitlist" to get it if it opens up.
+                      </p>
+                      {branch && date && (
+                        <WaitlistDialog
+                          open={!!waitTime}
+                          onOpenChange={(o) => !o && setWaitTime(null)}
+                          branchId={branch}
+                          branchName={selectedBranch?.name ?? ""}
+                          slotStart={waitTime ? slotStart(date, waitTime) : null}
+                          label={`${dateLabel(date)}, ${waitTime ?? ""}`}
+                        />
+                      )}
                     </>
                   )}
                   <FieldError msg={errors.time} />
