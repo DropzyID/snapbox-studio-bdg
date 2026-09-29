@@ -544,7 +544,7 @@ function Footer() {
                   <div>
                     <p className="text-sm font-bold">{b.name}</p>
                     <p className="text-xs opacity-70">{b.area}</p>
-                    <p className="mt-0.5 text-xs opacity-70">Open daily 10:00–21:00 (last session starts 20:30)</p>
+                    <p className="mt-0.5 whitespace-nowrap text-xs opacity-70">Daily 10:00–21:00 · last session 20:30</p>
                   </div>
                 </li>
               ))}
@@ -552,15 +552,35 @@ function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 border-t border-background/15 pt-6 text-xs opacity-70 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            © {new Date().getFullYear()} Snapbox Studio Bandung. All rights reserved.
-            <span aria-hidden className="mx-2 opacity-50">
+        <div className="mt-10 flex flex-col gap-3 border-t border-background/15 pt-6 text-xs opacity-70 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span>
+              © {new Date().getFullYear()} Snapbox Studio Bandung. All rights reserved.
+            </span>
+            <span aria-hidden className="opacity-50">
               ·
             </span>
-            Fictional business created for a portfolio demo.
+            <span>Fictional business created for a portfolio demo.</span>
+            <span aria-hidden className="opacity-50">
+              ·
+            </span>
+            <span>
+              Designed &amp; built by <span className="font-semibold">DropzyID</span> with Lovable
+            </span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              to="/privacy"
+              className="text-[11px] underline decoration-background/30 underline-offset-2 transition-colors hover:decoration-primary hover:text-primary"
+            >
+              Privacy
+            </Link>
+            <Link
+              to="/terms"
+              className="text-[11px] underline decoration-background/30 underline-offset-2 transition-colors hover:decoration-primary hover:text-primary"
+            >
+              Terms
+            </Link>
             <Link
               to="/waitlist-demo"
               className="text-[11px] underline decoration-background/30 underline-offset-2 transition-colors hover:decoration-primary hover:text-primary"
