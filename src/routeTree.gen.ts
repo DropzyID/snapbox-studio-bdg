@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as ManageRouteImport } from './routes/manage'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WaitlistDemoRouteImport } from './routes/waitlist-demo'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -30,6 +32,16 @@ const BookRoute = BookRouteImport.update({
 const ManageRoute = ManageRouteImport.update({
   id: '/manage',
   path: '/manage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WaitlistDemoRoute = WaitlistDemoRouteImport.update({
@@ -57,6 +69,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/book': typeof BookRoute
   '/manage': typeof ManageRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/waitlist-demo': typeof WaitlistDemoRoute
   '/admin/login': typeof AdminLoginRoute
   '/claim/$token': typeof ClaimTokenRoute
@@ -66,6 +80,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/book': typeof BookRoute
   '/manage': typeof ManageRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/waitlist-demo': typeof WaitlistDemoRoute
   '/admin/login': typeof AdminLoginRoute
   '/claim/$token': typeof ClaimTokenRoute
@@ -76,6 +92,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/book': typeof BookRoute
   '/manage': typeof ManageRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/waitlist-demo': typeof WaitlistDemoRoute
   '/admin/login': typeof AdminLoginRoute
   '/claim/$token': typeof ClaimTokenRoute
@@ -87,6 +105,8 @@ export interface FileRouteTypes {
     | '/'
     | '/book'
     | '/manage'
+    | '/privacy'
+    | '/terms'
     | '/waitlist-demo'
     | '/admin/login'
     | '/claim/$token'
@@ -96,6 +116,8 @@ export interface FileRouteTypes {
     | '/'
     | '/book'
     | '/manage'
+    | '/privacy'
+    | '/terms'
     | '/waitlist-demo'
     | '/admin/login'
     | '/claim/$token'
@@ -105,6 +127,8 @@ export interface FileRouteTypes {
     | '/'
     | '/book'
     | '/manage'
+    | '/privacy'
+    | '/terms'
     | '/waitlist-demo'
     | '/admin/login'
     | '/claim/$token'
@@ -115,6 +139,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BookRoute: typeof BookRoute
   ManageRoute: typeof ManageRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
   WaitlistDemoRoute: typeof WaitlistDemoRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ClaimTokenRoute: typeof ClaimTokenRoute
@@ -142,6 +168,20 @@ declare module '@tanstack/react-router' {
       path: '/manage'
       fullPath: '/manage'
       preLoaderRoute: typeof ManageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/waitlist-demo': {
@@ -179,6 +219,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookRoute: BookRoute,
   ManageRoute: ManageRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
   WaitlistDemoRoute: WaitlistDemoRoute,
   AdminLoginRoute: AdminLoginRoute,
   ClaimTokenRoute: ClaimTokenRoute,
