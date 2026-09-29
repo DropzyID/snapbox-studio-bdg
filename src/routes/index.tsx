@@ -544,7 +544,7 @@ function Footer() {
                   <div>
                     <p className="text-sm font-bold">{b.name}</p>
                     <p className="text-xs opacity-70">{b.area}</p>
-                    <p className="mt-0.5 text-xs opacity-70">Open daily 10:00–21:00</p>
+                    <p className="mt-0.5 text-xs opacity-70">Open daily 10:00–21:00 (last session starts 20:30)</p>
                   </div>
                 </li>
               ))}
