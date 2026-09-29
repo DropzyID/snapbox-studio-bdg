@@ -378,7 +378,7 @@ const plans = [
 function Pricing() {
   const livePrices = usePackagePrices();
   return (
-    <section id="pricing" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 sm:py-24">
+    <section id="pricing" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 pb-8 pt-16 sm:px-6 sm:pb-10 sm:pt-24">
       <div className="text-center">
         <p className="text-xs font-bold tracking-widest uppercase text-primary">Pricing</p>
         <h2 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-4xl">
