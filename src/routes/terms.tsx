@@ -19,6 +19,7 @@ export const Route = createFileRoute("/terms")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  component: Terms,
 });
 
 function Terms() {

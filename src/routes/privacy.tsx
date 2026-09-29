@@ -19,6 +19,7 @@ export const Route = createFileRoute("/privacy")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  component: Privacy,
 });
 
 function Privacy() {
