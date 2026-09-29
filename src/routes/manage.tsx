@@ -319,6 +319,7 @@ function Reschedule({
   const [version, setVersion] = useState(0);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [slotsStatus, setSlotsStatus] = useState<"loading" | "error" | "ok">("loading");
 
   const days = useMemo(
     () => Array.from({ length: 14 }, (_, i) => wibKey(new Date(now.getTime() + i * 86_400_000))),
@@ -327,14 +328,17 @@ function Reschedule({
 
   useEffect(() => {
     let off = false;
+    setSlotsStatus("loading");
     supabase
       .rpc("get_booked_slots", {
         _branch_id: booking.branch_id,
         _from: new Date(now.getTime() - 86_400_000).toISOString(),
         _to: new Date(now.getTime() + 16 * 86_400_000).toISOString(),
       })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (off) return;
+        if (error) return setSlotsStatus("error");
+        setSlotsStatus("ok");
         const ownStart = new Date(booking.slot_start).getTime();
         setBooked(
           (data ?? [])
@@ -414,6 +418,19 @@ function Reschedule({
         <h2 className="mb-3 font-display text-base font-bold">New time</h2>
         {!date ? (
           <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">Choose a date first to see open slots.</p>
+        ) : slotsStatus === "loading" ? (
+          <div className="grid grid-cols-4 gap-2" aria-busy="true" aria-label="Loading available times">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="sb-skeleton h-10" />
+            ))}
+          </div>
+        ) : slotsStatus === "error" ? (
+          <div role="alert" className="rounded-2xl border-2 border-destructive bg-card p-4 text-sm">
+            <p className="font-semibold text-destructive">We couldn't load the available times.</p>
+            <button type="button" onClick={() => setVersion((v) => v + 1)} className="mt-3 rounded-full border-2 border-foreground px-4 py-1.5 text-sm font-bold">
+              Try again
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-4 gap-2">
             {TIMES.filter((t) => {
@@ -427,12 +444,14 @@ function Reschedule({
                   key={t}
                   type="button"
                   disabled={dis}
+                  aria-pressed={act}
+                  aria-label={dis ? `${t}, unavailable` : t}
                   onClick={() => setTime(t)}
                   className={`rounded-xl border-2 py-2 text-sm font-bold transition-all ${
                     dis
-                      ? "cursor-not-allowed border-dashed border-border bg-muted text-muted-foreground/60 line-through"
+                      ? "cursor-not-allowed border-dashed border-border bg-muted text-muted-foreground line-through"
                       : act
-                        ? "border-foreground bg-secondary text-secondary-foreground shadow-pop-sm"
+                        ? "sb-pop border-foreground bg-secondary text-secondary-foreground shadow-pop-sm"
                         : "border-border bg-card hover:border-foreground/40"
                   }`}
                 >
