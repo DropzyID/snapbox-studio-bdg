@@ -333,6 +333,27 @@ function BookPage() {
 
   const amounts = depositFor(selectedPkg?.price ?? 0);
 
+  // "Next" stays disabled until the current step's required choices are made
+  const detailsOk =
+    detailsSchema.safeParse({ name, whatsapp }).success &&
+    !!selectedPkg &&
+    people >= selectedPkg.min &&
+    people <= selectedPkg.max;
+  const stepReady =
+    step === 0 ? !!branch
+    : step === 1 ? !!pkg && !!backdrop
+    : step === 2 ? !!date && !!time
+    : step === 3 ? detailsOk
+    : true;
+  const nextHint =
+    step === 0 && !branch ? "Pick a branch to continue."
+    : step === 1 && !pkg ? "Pick a package to continue."
+    : step === 1 && !backdrop ? "Choose a backdrop to continue."
+    : step === 2 && !date ? "Pick a date to continue."
+    : step === 2 && !time ? "Choose a time slot to continue."
+    : step === 3 && !detailsOk ? "Fill in your name and WhatsApp to continue."
+    : null;
+
   if (payment && !confirmed) {
     return (
       <Shell>
@@ -756,7 +777,7 @@ function BookPage() {
             )}
 
             <div className="mt-8 hidden items-center justify-between gap-3 lg:flex">
-              <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} />
+              <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} canNext={stepReady} hint={nextHint} />
             </div>
           </section>
 
@@ -768,6 +789,16 @@ function BookPage() {
                 backdrop={selectedBackdrop?.name}
                 when={date ? `${dateLabel(date)}${time ? ` · ${time}` : ""}` : undefined}
               />
+              <div className="mt-4 rounded-2xl border-2 border-dashed border-border bg-muted/60 p-4 text-xs text-muted-foreground">
+                <p className="flex items-center gap-2">
+                  <RefreshCcw className="h-3.5 w-3.5 shrink-0 text-secondary" />
+                  Free reschedule up to 2 hours before your session
+                </p>
+                <p className="mt-2 flex items-center gap-2">
+                  <BadgePercent className="h-3.5 w-3.5 shrink-0 text-secondary" />
+                  30% deposit to confirm your booking
+                </p>
+              </div>
             </div>
           </aside>
         </div>
@@ -785,8 +816,9 @@ function BookPage() {
               {selectedPkg ? rupiah(selectedPkg.price) : "Rp —"}
             </div>
           </div>
-          <div className="flex shrink-0 gap-2">
-            <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} compact />
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} compact canNext={stepReady} hint={nextHint} />
+            {nextHint && <p className="text-[11px] font-medium text-muted-foreground">{nextHint}</p>}
           </div>
         </div>
       </div>
