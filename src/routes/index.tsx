@@ -2,6 +2,7 @@ import { rupiahFmt, usePackagePrices } from "@/lib/packages";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Camera, MapPin, Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
+import { HeroDecor, PhotoPrinter, Reveal, StepIcon, ThemeScene } from "@/components/landing/Illustrations";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -176,6 +177,7 @@ function Hero() {
         aria-hidden
         className="hero-blob-blue pointer-events-none absolute top-40 -left-28 h-80 w-80 rounded-full opacity-25 blur-3xl"
       />
+      <HeroDecor />
 
       <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center px-4 pt-16 pb-20 text-center sm:px-6 sm:pt-24 sm:pb-28">
         <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-bold tracking-widest uppercase text-secondary">
@@ -215,17 +217,22 @@ function Hero() {
           </p>
         </div>
 
-        {/* placeholder photo-strip collage */}
+        {/* illustrated polaroid collage */}
         <div className="mt-14 grid w-full max-w-2xl grid-cols-3 gap-3 sm:gap-6">
-          <div className="rotate-[-6deg] rounded-2xl border border-border bg-card p-2 shadow-pop-sm transition-transform hover:rotate-0 sm:p-3">
-            <div className="backdrop-y2k aspect-[3/4] w-full rounded-xl" />
-          </div>
-          <div className="rotate-[3deg] rounded-2xl border border-border bg-card p-2 shadow-pop-sm transition-transform hover:rotate-0 sm:p-3 sm:translate-y-4">
-            <div className="backdrop-vintage aspect-[3/4] w-full rounded-xl" />
-          </div>
-          <div className="rotate-[7deg] rounded-2xl border border-border bg-card p-2 shadow-pop-sm transition-transform hover:rotate-0 sm:p-3">
-            <div className="backdrop-minimal aspect-[3/4] w-full rounded-xl" />
-          </div>
+          {([
+            ["y2k", "sb-bob-1", "rotate-[-6deg]", ""],
+            ["vintage", "sb-bob-2", "rotate-[3deg]", "sm:translate-y-4"],
+            ["minimal", "sb-bob-3", "rotate-[7deg]", ""],
+          ] as const).map(([theme, bob, rot, off]) => (
+            <div key={theme} className={off}>
+              <div className={bob}>
+                <div className={`${rot} group rounded-2xl border border-border bg-card p-2 shadow-pop-sm transition-transform duration-300 hover:rotate-0 hover:scale-105 sm:p-3`}>
+                  <ThemeScene theme={theme} className="aspect-[3/4] w-full rounded-xl" />
+                  <div className="mt-1.5 h-2 sm:mt-2 sm:h-3" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -261,19 +268,24 @@ function HowItWorks() {
       </div>
 
       <ol className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
-        {steps.map((step) => (
-          <li
+        {steps.map((step, i) => (
+          <Reveal
+            as="li"
             key={step.n}
+            delay={i * 120}
             className="rounded-3xl border border-border bg-card p-6 shadow-pop-sm sm:p-8"
           >
-            <span className="inline-grid h-12 w-12 place-items-center rounded-2xl bg-secondary font-display text-sm font-bold text-secondary-foreground">
-              {step.n}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="inline-grid h-14 w-14 place-items-center rounded-2xl bg-secondary text-secondary-foreground">
+                <StepIcon kind={i as 0 | 1 | 2} />
+              </span>
+              <span className="font-display text-sm font-bold text-muted-foreground">{step.n}</span>
+            </div>
             <h3 className="mt-5 font-display text-lg font-bold sm:text-xl">{step.title}</h3>
             <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground sm:text-base">
               {step.text}
             </p>
-          </li>
+          </Reveal>
         ))}
       </ol>
     </section>
@@ -284,17 +296,17 @@ const backdrops = [
   {
     name: "Y2K",
     tagline: "Chrome, bubblegum & dial-up dreams",
-    gradient: "backdrop-y2k",
+    theme: "y2k" as const,
   },
   {
     name: "Vintage",
     tagline: "Faded film, warm & nostalgic",
-    gradient: "backdrop-vintage",
+    theme: "vintage" as const,
   },
   {
     name: "Minimal",
     tagline: "Clean lines, soft light, all you",
-    gradient: "backdrop-minimal",
+    theme: "minimal" as const,
   },
 ];
 
@@ -319,7 +331,7 @@ function Backdrops() {
               key={b.name}
               className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-pop-sm transition-transform duration-200 hover:-translate-y-1"
             >
-              <div className={`${b.gradient} aspect-[4/5] w-full transition-transform duration-300 group-hover:scale-[1.03]`} />
+              <ThemeScene theme={b.theme} className="aspect-[4/5] w-full" />
               <div className="flex-1 p-5 sm:p-6">
                 <h3 className="font-display text-lg font-bold sm:text-xl">{b.name}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{b.tagline}</p>
@@ -372,6 +384,8 @@ function Pricing() {
           Simple rates, no surprises
         </h2>
       </div>
+
+      <PhotoPrinter />
 
       <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6 sm:items-stretch">
         {plans.map((plan) => (

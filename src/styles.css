@@ -310,3 +310,28 @@
   mix-blend-mode: overlay;
   opacity: 0.28;
 }
+
+/* ===== Landing illustrations ===== */
+@keyframes sb-hero-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes sb-twinkle { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.6); } }
+@keyframes sb-grain-move { 0% { transform: translate(0,0); } 25% { transform: translate(-3px,2px); } 50% { transform: translate(2px,-3px); } 75% { transform: translate(-2px,-1px); } 100% { transform: translate(0,0); } }
+@keyframes sb-drift { 0%,100% { transform: translate(0,0) rotate(0); } 50% { transform: translate(6px,-12px) rotate(20deg); } }
+.sb-bob-1 { animation: sb-hero-bob 5s ease-in-out infinite; }
+.sb-bob-2 { animation: sb-hero-bob 6.2s ease-in-out .8s infinite; }
+.sb-bob-3 { animation: sb-hero-bob 5.6s ease-in-out 1.6s infinite; }
+.sb-drift { animation: sb-drift 12s ease-in-out infinite; }
+.group:hover .sb-twinkle { animation: sb-twinkle 1.2s ease-in-out infinite; }
+.group:hover .sb-twinkle-soft { animation: sb-flutter 1.6s ease-in-out infinite; }
+.group:hover .sb-grain-shift { animation: sb-grain-move .5s steps(4) infinite; }
+.sb-arch { transition: stroke .4s ease, filter .4s ease; }
+.group:hover .sb-arch { stroke: oklch(0.8 0.12 75); filter: drop-shadow(0 0 3px oklch(0.9 0.12 80)); }
+.sb-reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1); }
+.sb-reveal.is-in { opacity: 1; transform: none; }
+.sb-printer.sb-reveal { opacity: 1; transform: none; }
+.sb-strip { transform: translateY(-105%); transition: transform 1.6s cubic-bezier(.3,.7,.2,1) .2s; }
+.sb-printer.is-in .sb-strip { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .sb-bob-1, .sb-bob-2, .sb-bob-3, .sb-drift,
+  .group:hover .sb-twinkle, .group:hover .sb-twinkle-soft, .group:hover .sb-grain-shift { animation: none; }
+  .sb-reveal, .sb-strip { opacity: 1; transform: none; transition: none; }
+}
