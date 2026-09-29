@@ -137,8 +137,11 @@ function Hero() {
           crew, and walk out with printed strips — no photographer needed.
         </p>
 
-        <div className="mt-8">
+        <div className="mt-8 flex flex-col items-center gap-2.5">
           <BookButton />
+          <p className="text-xs text-muted-foreground sm:text-sm">
+            Free reschedule up to 2 hours before your session.
+          </p>
         </div>
 
         {/* placeholder photo-strip collage */}
@@ -234,8 +237,8 @@ function Backdrops() {
             Pick a vibe for your set
           </h2>
           <p className="max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Every backdrop is styled and refreshed daily. Not sure which one? You can
-            always switch between sessions.
+            Every backdrop is styled by our team. Not sure which one? You can switch
+            between sessions.
           </p>
         </div>
 
@@ -263,6 +266,7 @@ const plans = [
     name: "Solo",
     price: "Rp 60.000",
     duration: "15 min",
+    group: "1 person",
     features: ["1 backdrop of your choice", "Printed photo strips", "Props & remote shutter"],
     featured: false,
   },
@@ -270,6 +274,7 @@ const plans = [
     name: "Duo",
     price: "Rp 100.000",
     duration: "20 min",
+    group: "Up to 2 people",
     features: ["1 backdrop of your choice", "Printed photo strips", "Props & remote shutter", "Digital copies via QR"],
     featured: true,
   },
@@ -277,6 +282,7 @@ const plans = [
     name: "Group",
     price: "Rp 180.000",
     duration: "30 min",
+    group: "Up to 6 people",
     features: ["1 backdrop of your choice", "Printed photo strips", "Props & remote shutter", "Digital copies via QR"],
     featured: false,
   },
@@ -308,11 +314,16 @@ function Pricing() {
               </span>
             )}
             <h3 className="font-display text-lg font-bold sm:text-xl">{plan.name}</h3>
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="font-display text-2xl font-bold sm:text-3xl">{plan.price}</span>
-              <span className={plan.featured ? "text-sm opacity-80" : "text-sm text-muted-foreground"}>
-                / {plan.duration}
-              </span>
+            <div className="mt-4">
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-2xl font-bold sm:text-3xl">{plan.price}</span>
+                <span className={plan.featured ? "text-sm opacity-80" : "text-sm text-muted-foreground"}>
+                  / {plan.duration}
+                </span>
+              </div>
+              <p className={plan.featured ? "mt-1 text-xs font-semibold opacity-80" : "mt-1 text-xs font-semibold text-muted-foreground"}>
+                {plan.group}
+              </p>
             </div>
             <ul className="mt-6 flex-1 space-y-2.5 text-sm">
               {plan.features.map((f) => (
@@ -378,6 +389,7 @@ function Footer() {
                   <div>
                     <p className="text-sm font-bold">{b.name}</p>
                     <p className="text-xs opacity-70">{b.area}</p>
+                    <p className="mt-0.5 text-xs opacity-70">Open daily 10:00–21:00</p>
                   </div>
                 </li>
               ))}
