@@ -296,17 +296,17 @@ const backdrops = [
   {
     name: "Y2K",
     tagline: "Chrome, bubblegum & dial-up dreams",
-    gradient: "backdrop-y2k",
+    theme: "y2k" as const,
   },
   {
     name: "Vintage",
     tagline: "Faded film, warm & nostalgic",
-    gradient: "backdrop-vintage",
+    theme: "vintage" as const,
   },
   {
     name: "Minimal",
     tagline: "Clean lines, soft light, all you",
-    gradient: "backdrop-minimal",
+    theme: "minimal" as const,
   },
 ];
 
