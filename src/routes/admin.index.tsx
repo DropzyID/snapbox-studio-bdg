@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Ban, Camera, Check, LogOut, RefreshCw, Trash2, UserX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,13 +6,7 @@ import { BRANCH_NAMES } from "@/components/SimpleShell";
 import { rupiahFmt } from "@/lib/packages";
 
 export const Route = createFileRoute("/admin/")({
-  ssr: false,
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/admin/login" });
-    const { data: isOwner } = await supabase.rpc("has_role", { _user_id: data.user.id, _role: "owner" });
-    if (!isOwner) throw redirect({ to: "/admin/login" });
-  },
+
   head: () => ({
     meta: [
       { title: "Owner Dashboard — Snapbox Studio" },
@@ -24,8 +18,39 @@ export const Route = createFileRoute("/admin/")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: AdminPage,
+  component: AdminGate,
 });
+
+// Client-side gate (data itself is protected in the database by owner-only functions and RLS).
+function AdminGate() {
+  const navigate = useNavigate();
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      const isOwner = data.user
+        ? (await supabase.rpc("has_role", { _user_id: data.user.id, _role: "owner" })).data
+        : false;
+      if (!alive) return;
+      if (isOwner) setOk(true);
+      else navigate({ to: "/admin/login", replace: true });
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [navigate]);
+  if (!ok)
+    return (
+      <div className="mx-auto max-w-6xl space-y-4 px-4 pt-24 sm:px-6" aria-busy="true" aria-label="Checking access">
+        <div className="sb-skeleton h-8 w-56" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="sb-skeleton h-28 rounded-3xl" />)}
+        </div>
+      </div>
+    );
+  return <AdminPage />;
+}
 
 const TZ = "Asia/Jakarta";
 const todayKey = () => new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(new Date());
