@@ -252,7 +252,7 @@ function BookPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-          <section className="rounded-3xl border-2 border-foreground bg-card p-5 shadow-pop sm:p-7">
+          <section className="min-w-0 rounded-3xl border-2 border-foreground bg-card p-5 shadow-pop sm:p-7">
             {step === 0 && (
               <div>
                 <StepTitle>Which branch?</StepTitle>
