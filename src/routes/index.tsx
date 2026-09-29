@@ -445,15 +445,22 @@ function Pricing() {
 }
 
 const branches = [
-  { name: "Dago", area: "Dago, Bandung" },
-  { name: "Buah Batu", area: "Buah Batu, Bandung" },
+  { name: "Dago", area: "Dago, Bandung (demo location)" },
+  { name: "Buah Batu", area: "Buah Batu, Bandung (demo location)" },
+];
+
+const quickLinks = [
+  { label: "How it works", href: "how-it-works" },
+  { label: "Backdrops", href: "backdrops" },
+  { label: "Pricing", href: "pricing" },
 ];
 
 function Footer() {
   return (
     <footer className="w-full bg-foreground text-background">
-      <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-        <div className="grid gap-10 sm:grid-cols-[1fr_auto] sm:gap-16">
+      <div className="mx-auto w-full max-w-6xl px-4 pb-8 pt-10 sm:px-6 sm:pb-10 sm:pt-12">
+        <div className="grid gap-10 md:grid-cols-3 md:gap-12">
+          {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
@@ -466,14 +473,66 @@ function Footer() {
             <p className="mt-4 max-w-sm text-sm leading-relaxed opacity-70">
               Self-photo studio in Bandung. Your moment, your frame — booked in 30 seconds.
             </p>
-            <Link
-              to="/manage"
-              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-background/20 px-4 py-2 text-sm font-bold transition-colors hover:border-primary/60 hover:text-primary"
-            >
-              Manage booking
-            </Link>
+            <div className="mt-5">
+              <p className="text-xs font-bold tracking-widest uppercase opacity-60">Contact</p>
+              <div className="mt-3 flex flex-wrap gap-2.5">
+                <a
+                  href={`https://wa.me/${STUDIO_WHATSAPP}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-background/20 px-3.5 py-2 text-xs font-bold opacity-80 transition-colors hover:border-primary/60 hover:text-primary hover:opacity-100"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" aria-hidden />
+                  Chat on WhatsApp
+                </a>
+                <a
+                  href="https://instagram.com/snapbox.studio"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-background/20 px-3.5 py-2 text-xs font-bold opacity-80 transition-colors hover:border-primary/60 hover:text-primary hover:opacity-100"
+                >
+                  <Instagram className="h-3.5 w-3.5" aria-hidden />
+                  Instagram
+                </a>
+              </div>
+            </div>
           </div>
 
+          {/* Quick links */}
+          <div>
+            <p className="text-xs font-bold tracking-widest uppercase opacity-60">Quick links</p>
+            <ul className="mt-4 space-y-2.5">
+              {quickLinks.map((l) => (
+                <li key={l.href}>
+                  <button
+                    type="button"
+                    onClick={() => scrollTo(l.href)}
+                    className="text-sm opacity-80 underline-offset-4 transition-colors hover:text-primary hover:underline hover:opacity-100"
+                  >
+                    {l.label}
+                  </button>
+                </li>
+              ))}
+              <li>
+                <Link
+                  to="/book"
+                  className="text-sm font-bold opacity-80 underline-offset-4 transition-colors hover:text-primary hover:underline hover:opacity-100"
+                >
+                  Book a session
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/manage"
+                  className="text-sm opacity-80 underline-offset-4 transition-colors hover:text-primary hover:underline hover:opacity-100"
+                >
+                  Manage booking
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Branches */}
           <div>
             <p className="text-xs font-bold tracking-widest uppercase opacity-60">Our branches</p>
             <ul className="mt-4 space-y-3">
@@ -493,17 +552,28 @@ function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-background/15 pt-6 text-xs opacity-60">
-          © {new Date().getFullYear()} Snapbox Studio Bandung. All rights reserved.
-          <span aria-hidden className="mx-2 opacity-50">
-            ·
-          </span>
-          <Link
-            to="/waitlist-demo"
-            className="text-[11px] underline decoration-background/30 underline-offset-2 transition-colors hover:decoration-primary hover:text-primary"
-          >
-            Demo tools
-          </Link>
+        <div className="mt-10 flex flex-col gap-3 border-t border-background/15 pt-6 text-xs opacity-70 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            © {new Date().getFullYear()} Snapbox Studio Bandung. All rights reserved.
+            <span aria-hidden className="mx-2 opacity-50">
+              ·
+            </span>
+            Fictional business created for a portfolio demo.
+          </div>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/waitlist-demo"
+              className="text-[11px] underline decoration-background/30 underline-offset-2 transition-colors hover:decoration-primary hover:text-primary"
+            >
+              Demo tools
+            </Link>
+            <Link
+              to="/admin/login"
+              className="text-[11px] underline decoration-background/30 underline-offset-2 transition-colors hover:decoration-primary hover:text-primary"
+            >
+              Owner dashboard
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
