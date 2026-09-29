@@ -447,7 +447,7 @@ function BookPage() {
                   ) : (
                     <>
                       <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-                        {TIMES.map((t) => {
+                        {visibleTimes.map((t) => {
                           const disabled = slotDisabled(t);
                           const active = time === t;
                           return (
