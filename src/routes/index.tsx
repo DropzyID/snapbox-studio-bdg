@@ -32,12 +32,22 @@ const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 };
 
-function BookButton({ label = "Book a session" }: { label?: string }) {
+function BookButton({
+  label = "Book a session",
+  variant = "primary",
+}: {
+  label?: string;
+  variant?: "primary" | "secondary";
+}) {
   return (
     <button
       type="button"
       onClick={() => scrollTo("pricing")}
-      className="shadow-pop inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-bold tracking-wide text-primary-foreground transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-pop-sm active:translate-y-0.5 active:shadow-none sm:text-base"
+      className={
+        variant === "secondary"
+          ? "shadow-pop inline-flex items-center gap-2 rounded-2xl bg-secondary px-6 py-3.5 text-sm font-bold tracking-wide text-secondary-foreground transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-pop-sm active:translate-y-0.5 active:shadow-none sm:text-base"
+          : "shadow-pop inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-bold tracking-wide text-primary-foreground transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-pop-sm active:translate-y-0.5 active:shadow-none sm:text-base"
+      }
     >
       <Camera className="h-4 w-4 shrink-0" aria-hidden />
       {label}
