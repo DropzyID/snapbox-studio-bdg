@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, ArrowRight, CalendarPlus, Camera, Check, MapPin, MessageCircle, PartyPopper, Settings2, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgePercent, CalendarPlus, Camera, Check, MapPin, MessageCircle, PartyPopper, RefreshCcw, Settings2, Star } from "lucide-react";
+import { ThemeScene } from "@/components/landing/Illustrations";
 import { downloadIcs, whatsappLink } from "@/lib/booking-actions";
 import { DepositPayment } from "@/components/DepositPayment";
 import { WaitlistDialog } from "@/components/WaitlistDialog";
@@ -132,8 +133,16 @@ function BookPage() {
   const [claim, setClaim] = useState<{ token: string; branch: BranchId; date: string; time: string; start: number } | null>(null);
   const [claimNote, setClaimNote] = useState<string | null>(null);
   const [waitTime, setWaitTime] = useState<string | null>(null);
+  const [mostBooked, setMostBooked] = useState<BackdropId | null>(null);
 
   useEffect(() => setNow(new Date()), []);
+
+  // "Most booked" badge follows real booking counts (null on a tie or no data)
+  useEffect(() => {
+    supabase.rpc("most_booked_theme").then(({ data }) => {
+      setMostBooked(data === "y2k" || data === "vintage" || data === "minimal" ? data : null);
+    });
+  }, []);
 
   // Arriving from a waitlist claim link: pre-select branch, date and time
   useEffect(() => {
@@ -324,6 +333,27 @@ function BookPage() {
 
   const amounts = depositFor(selectedPkg?.price ?? 0);
 
+  // "Next" stays disabled until the current step's required choices are made
+  const detailsOk =
+    detailsSchema.safeParse({ name, whatsapp }).success &&
+    !!selectedPkg &&
+    people >= selectedPkg.min &&
+    people <= selectedPkg.max;
+  const stepReady =
+    step === 0 ? !!branch
+    : step === 1 ? !!pkg && !!backdrop
+    : step === 2 ? !!date && !!time
+    : step === 3 ? detailsOk
+    : true;
+  const nextHint =
+    step === 0 && !branch ? "Pick a branch to continue."
+    : step === 1 && !pkg ? "Pick a package to continue."
+    : step === 1 && !backdrop ? "Choose a backdrop to continue."
+    : step === 2 && !date ? "Pick a date to continue."
+    : step === 2 && !time ? "Choose a time slot to continue."
+    : step === 3 && !detailsOk ? "Fill in your name and WhatsApp to continue."
+    : null;
+
   if (payment && !confirmed) {
     return (
       <Shell>
@@ -511,18 +541,18 @@ function BookPage() {
                           setBackdrop(b.id);
                           setErrors((e) => ({ ...e, backdrop: undefined }));
                         }}
-                        className={`${cardBase} relative p-2 ${
+                        className={`${cardBase} group relative p-2 ${
                           backdrop === b.id
                             ? "border-primary bg-accent shadow-pop-sm -translate-y-0.5"
                             : "border-border bg-card hover:border-foreground/40"
                         }`}
                       >
-                        {b.id === "y2k" && (
+                        {b.id === mostBooked && (
                           <span className="absolute -top-2.5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
                             Most booked
                           </span>
                         )}
-                        <div className={`${b.cls} aspect-[3/4] rounded-xl`} />
+                        <ThemeScene theme={b.id} className="aspect-[3/4] rounded-xl" />
                         <div className="mt-2 text-center font-display text-sm font-bold">{b.name}</div>
                       </button>
                     ))}
@@ -747,7 +777,7 @@ function BookPage() {
             )}
 
             <div className="mt-8 hidden items-center justify-between gap-3 lg:flex">
-              <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} />
+              <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} canNext={stepReady} hint={nextHint} />
             </div>
           </section>
 
@@ -759,6 +789,16 @@ function BookPage() {
                 backdrop={selectedBackdrop?.name}
                 when={date ? `${dateLabel(date)}${time ? ` · ${time}` : ""}` : undefined}
               />
+              <div className="mt-4 rounded-2xl border-2 border-dashed border-border bg-muted/60 p-4 text-xs text-muted-foreground">
+                <p className="flex items-center gap-2">
+                  <RefreshCcw className="h-3.5 w-3.5 shrink-0 text-secondary" />
+                  Free reschedule up to 2 hours before your session
+                </p>
+                <p className="mt-2 flex items-center gap-2">
+                  <BadgePercent className="h-3.5 w-3.5 shrink-0 text-secondary" />
+                  30% deposit to confirm your booking
+                </p>
+              </div>
             </div>
           </aside>
         </div>
@@ -776,8 +816,9 @@ function BookPage() {
               {selectedPkg ? rupiah(selectedPkg.price) : "Rp —"}
             </div>
           </div>
-          <div className="flex shrink-0 gap-2">
-            <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} compact />
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <NavButtons step={step} back={back} next={next} confirm={confirm} busy={submitting} compact canNext={stepReady} hint={nextHint} />
+            {nextHint && <p className="text-[11px] font-medium text-muted-foreground">{nextHint}</p>}
           </div>
         </div>
       </div>
@@ -815,6 +856,8 @@ function NavButtons({
   confirm,
   compact,
   busy,
+  canNext = true,
+  hint,
 }: {
   step: number;
   back: () => void;
@@ -822,8 +865,11 @@ function NavButtons({
   confirm: () => void;
   compact?: boolean | undefined;
   busy?: boolean | undefined;
+  canNext?: boolean | undefined;
+  hint?: string | null | undefined;
 }) {
   const last = step === STEPS.length - 1;
+  const nextDisabled = !!busy || (!last && !canNext);
   return (
     <>
       {step > 0 ? (
@@ -839,17 +885,25 @@ function NavButtons({
       ) : (
         !compact && <span />
       )}
-      <button
-        type="button"
-        onClick={last ? confirm : next}
-        disabled={busy}
-        className={`shadow-pop-sm inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition-transform hover:-translate-y-0.5 ${
-          last ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"
-        }`}
-      >
-        {last ? (busy ? "Booking…" : "Confirm booking") : "Next"}
-        {last ? <Check className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
-      </button>
+      <span className={compact ? "contents" : "flex flex-col items-end gap-1.5"}>
+        <button
+          type="button"
+          onClick={last ? confirm : next}
+          disabled={nextDisabled}
+          aria-disabled={nextDisabled}
+          className={`shadow-pop-sm inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition-transform ${
+            nextDisabled
+              ? "cursor-not-allowed opacity-45"
+              : "hover:-translate-y-0.5"
+          } ${last ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"}`}
+        >
+          {last ? (busy ? "Booking…" : "Confirm booking") : "Next"}
+          {last ? <Check className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+        </button>
+        {!compact && hint && !last && (
+          <span className="text-xs font-medium text-muted-foreground">{hint}</span>
+        )}
+      </span>
     </>
   );
 }

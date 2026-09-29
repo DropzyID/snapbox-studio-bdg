@@ -427,6 +427,7 @@ export type Database = {
           token: string
         }[]
       }
+      most_booked_theme: { Args: never; Returns: string }
       normalize_wa: { Args: { _w: string }; Returns: string }
       offer_next_waitlist: {
         Args: { _branch_id: string; _slot_start: string }
