@@ -198,3 +198,70 @@
 @utility shadow-pop-sm {
   box-shadow: 0 5px 0 0 var(--foreground);
 }
+
+/* ===== Booking booth previewer (CSS-only, mobile friendly) ===== */
+@keyframes sb-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes sb-flutter {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-8deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(10deg);
+  }
+}
+
+.sb-float {
+  animation: sb-float 3.4s ease-in-out infinite;
+}
+
+.sb-float-late {
+  animation: sb-float 4.2s ease-in-out 0.9s infinite;
+}
+
+.sb-flutter {
+  animation: sb-flutter 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-float,
+  .sb-float-late,
+  .sb-flutter {
+    animation: none;
+  }
+}
+
+.sb-chrome {
+  background: radial-gradient(
+    circle at 32% 28%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.45) 38%,
+    rgba(255, 255, 255, 0.08) 72%
+  );
+  border: 1.5px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.25);
+}
+
+.sb-curtain {
+  background: repeating-linear-gradient(
+    90deg,
+    oklch(0.228 0.038 282.9) 0 6px,
+    oklch(0.32 0.05 282.9) 6px 10px
+  );
+}
+
+.sb-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  mix-blend-mode: overlay;
+  opacity: 0.28;
+}
