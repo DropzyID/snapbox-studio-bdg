@@ -37,6 +37,3 @@ export function SimpleShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useCountdown(expiresAt: number | null) {
-  return expiresAt;
-}
