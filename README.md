@@ -30,8 +30,17 @@ A booking web app for a fictional self-photo (photobox) studio in Bandung, Indon
 - Fictional business created for a portfolio demo
 - Payments and WhatsApp messages are simulated
 - Dashboard data is seeded demo data
-- Owner dashboard: /admin/login (demo account: Email: demo@snapbox.test
-Password: SnapboxDemo2026)
+- Owner dashboard: `/admin/login`
+  - Email: `demo@snapbox.test`
+  - Password: `SnapboxDemo2026`
+
+## Run locally
+```sh
+git clone https://github.com/DropzyID/snapbox-studio-bdg.git
+cd snapbox-studio-bdg
+npm i
+npm run dev
+```
 
 ## Author
 Built by DropzyID with Lovable.
