@@ -1,32 +1,37 @@
 # Snapbox Studio
 
-Build a web app called "Snapbox Studio", a booking website for a self-photo studio (photobox) in Bandung, Indonesia.
+A booking web app for a fictional self-photo (photobox) studio in Bandung, Indonesia. Built for the Lovable "built it for small business" challenge.
 
-Design direction: playful Y2K-meets-minimal aesthetic. Colors: warm cream background (#FFF8F0), hot pink accent (#FF3D8B), electric blue secondary (#3D5AFE), dark text (#1A1A2E). Use rounded corners, soft shadows, and a bold display font for headings with a clean sans-serif for body. Mobile-first and fully responsive.
+**Live demo:** https://snapbox-studio-bdg.lovable.app
+**Code:** https://github.com/DropzyID/snapbox-studio-bdg
 
-Create a landing page with: a hero section with headline "Your moment. Your frame. Booked in 30 seconds." and a "Book a session" button, a "How it works" section with 3 steps, a section previewing 3 backdrop themes (Y2K, Vintage, Minimal), a pricing section (Solo Rp 60.000 / 15 min, Duo Rp 100.000 / 20 min, Group Rp 180.000 / 30 min), and a footer with 2 branches: Dago and Buah Batu.
+## Features
+- 5-step booking flow (branch, package, backdrop, time slot, details)
+- Interactive backdrop previewer (Y2K, Vintage, Minimal)
+- Real-time slot availability with database-level double-booking protection
+- 30% deposit step (simulated payment)
+- Manage booking: reschedule or cancel up to 2 hours before the session
+- Automatic waitlist with a 10-minute claim link
+- Owner dashboard: schedule, revenue, no-show rate, busiest hours, slots recovered via waitlist
+- Responsive layout (mobile, tablet, desktop)
 
-Use placeholder gradients instead of real photos. Do not build booking logic yet.
+## Tech stack
+- Lovable (AI app builder)
+- React + TypeScript
+- Supabase (database, auth, Row Level Security, server functions)
 
-This project was built with [Lovable](https://lovable.dev).
+## Security
+- Customer data is written only through server-side functions
+- Public users can only see which slots are taken, never customer names or phone numbers
+- Owner-only access to the admin dashboard
+- Lovable quick and deep security scans passed before publishing
 
-**Live app**: https://snapbox-studio-bdg.lovable.app
+## Demo notes
+- Fictional business created for a portfolio demo
+- Payments and WhatsApp messages are simulated
+- Dashboard data is seeded demo data
+- Owner dashboard: /admin/login (demo account: Email: demo@snapbox.test
+Password: SnapboxDemo2026)
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/7dacf233-9c3b-4cbd-8748-8fb574a3a021).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+## Author
+Built by DropzyID with Lovable.
